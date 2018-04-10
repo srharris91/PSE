@@ -2,3 +2,6 @@
 	path = PSE/Submodules/petsc
 	url = https://bitbucket.org/petsc/petsc
 	branch = maint
+[submodule "PSE/Submodules/cmake-modules"]
+	path = PSE/Submodules/cmake-modules
+	url = git@github.com:jedbrown/cmake-modules.git

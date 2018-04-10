@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.5)
+#include(FindPETSc.cmake)
+#set(PETSC_DIR "/home/shaun/GITHUBs/OrrSommerfeld_Squire/PSE/Submodules/petsc")
+#set(PETSC_ARCH "arch-linux2-c-debug")
+list (APPEND CMAKE_MODULE_PATH "/home/shaun/GITHUBs/OrrSommerfeld_Squire/PSE/Submodules")
+find_package(PETSc REQUIRED)
+message(WARNING "PETSC_FOUND = ${PETSC_FOUND}")
