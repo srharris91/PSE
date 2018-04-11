@@ -30,6 +30,33 @@ T*/
      petscviewer.h - viewers               petscpc.h  - preconditioners
 */
 #include <petscksp.h>
+#include <stdio.h>
+
+PetscScalar* base_flow(PetscScalar *y, PetscScalar n, PetscBool output_full=PETSC_FALSE, PetscInt Dim=2){
+    PetscScalar U[int(n)], Uy[int(n)], Uyy;
+    for(int i=0; i<n; i++){
+        U[i] = 1. - y[i]*y[i];
+        Uy[i]= -2.*y[i];
+    }
+    Uyy = -2.;
+
+    return 0;
+}
+int Read_q(PetscScalar *RHS_True,int n){
+    PetscErrorCode ierr;
+    char buff[]="tofile.dat";
+    FILE *latfile;
+    latfile=fopen(buff,"r");
+    fread(RHS_True,sizeof(double),n,latfile);
+    fclose(latfile);
+    ierr = PetscPrintf(PETSC_COMM_WORLD,"\n\nReading in RHS_True\n");CHKERRQ(ierr);
+    for(int i=0; i<n; i++){
+      ierr = PetscPrintf(PETSC_COMM_WORLD,"  RHS_True[%D] = %g \n",i,(double)RHS_True[i]);CHKERRQ(ierr);
+    }
+    ierr = PetscPrintf(PETSC_COMM_WORLD,"done Reading in RHS_True\n\n\n");CHKERRQ(ierr);
+    return 0;
+
+}
 
 int main(int argc,char **args)
 {
@@ -39,11 +66,11 @@ int main(int argc,char **args)
   PetscReal      norm;         /* norm of solution error */
   PetscInt       dim,i,Istart,Iend,n = 6,its,col[]={0,1,2,3,4,5};//,j
   PetscErrorCode ierr;
-  PetscScalar    none = -1.0,pfive = 0.5,*xa,v[n],RHS_True[]={1,-2,3,4,2,-1};
+  PetscScalar    none = -1.0,*xa,v[n],RHS_True[n];
   PetscBool      flg = PETSC_FALSE;
 
   ierr = PetscInitialize(&argc,&args,(char*)0,help);if (ierr) return ierr;
-  //ierr = PetscOptionsGetInt(NULL,NULL,"-n",&n,NULL);CHKERRQ(ierr);
+  ierr = PetscOptionsGetInt(NULL,NULL,"-n",&n,NULL);CHKERRQ(ierr);
   dim  = n*n;
 
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -72,12 +99,12 @@ int main(int argc,char **args)
      Set matrix elements 
   */
   
-  v[0]=1;   v[1]=1; v[2]=-2;v[3]=1; v[4]=3; v[5]=-4.;  i=0; ierr = MatSetValues(A,1,&i,6,col,v,INSERT_VALUES);CHKERRQ(ierr);
-  v[0]=2;   v[1]=-1;v[2]=1; v[3]=2; v[4]=1; v[5]=-3.;  i=1; ierr = MatSetValues(A,1,&i,6,col,v,INSERT_VALUES);CHKERRQ(ierr);
-  v[0]=1;   v[1]=3; v[2]=-3;v[3]=-1;v[4]=2; v[5]=1. ;  i=2; ierr = MatSetValues(A,1,&i,6,col,v,INSERT_VALUES);CHKERRQ(ierr);
-  v[0]=5;   v[1]=2; v[2]=-1;v[3]=-1;v[4]=2; v[5]=1. ;  i=3; ierr = MatSetValues(A,1,&i,6,col,v,INSERT_VALUES);CHKERRQ(ierr);
-  v[0]=-3;  v[1]=-1;v[2]=2; v[3]=3; v[4]=1; v[5]=3. ;  i=4; ierr = MatSetValues(A,1,&i,6,col,v,INSERT_VALUES);CHKERRQ(ierr);
-  v[0]=4;   v[1]=3; v[2]=1; v[3]=-6;v[4]=-3;v[5]=-2.;  i=5; ierr = MatSetValues(A,1,&i,6,col,v,INSERT_VALUES);CHKERRQ(ierr);
+  v[0]=1;   v[1]=1; v[2]=-2;v[3]=1; v[4]=3; v[5]=-4.;  i=0; ierr = MatSetValues(A,1,&i,n,col,v,INSERT_VALUES);CHKERRQ(ierr);
+  v[0]=2;   v[1]=-1;v[2]=1; v[3]=2; v[4]=1; v[5]=-3.;  i=1; ierr = MatSetValues(A,1,&i,n,col,v,INSERT_VALUES);CHKERRQ(ierr);
+  v[0]=1;   v[1]=3; v[2]=-3;v[3]=-1;v[4]=2; v[5]=1. ;  i=2; ierr = MatSetValues(A,1,&i,n,col,v,INSERT_VALUES);CHKERRQ(ierr);
+  v[0]=5;   v[1]=2; v[2]=-1;v[3]=-1;v[4]=2; v[5]=1. ;  i=3; ierr = MatSetValues(A,1,&i,n,col,v,INSERT_VALUES);CHKERRQ(ierr);
+  v[0]=-3;  v[1]=-1;v[2]=2; v[3]=3; v[4]=1; v[5]=3. ;  i=4; ierr = MatSetValues(A,1,&i,n,col,v,INSERT_VALUES);CHKERRQ(ierr);
+  v[0]=4;   v[1]=3; v[2]=1; v[3]=-6;v[4]=-3;v[5]=-2.;  i=5; ierr = MatSetValues(A,1,&i,n,col,v,INSERT_VALUES);CHKERRQ(ierr);
 
 
   /*
@@ -107,7 +134,8 @@ int main(int argc,char **args)
   */
 
   //ierr = VecSet(u,pfive);CHKERRQ(ierr);
-  ierr = VecSetValues(u,6,col,RHS_True,INSERT_VALUES);CHKERRQ(ierr);
+  Read_q(RHS_True,n);
+  ierr = VecSetValues(u,n,col,RHS_True,INSERT_VALUES);CHKERRQ(ierr);
   ierr = MatMult(A,u,b);CHKERRQ(ierr);
 
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -149,10 +177,11 @@ int main(int argc,char **args)
   ierr = PetscOptionsGetBool(NULL,NULL,"-print_x6",&flg,NULL);CHKERRQ(ierr);
   if (flg) {
     ierr = VecGetArray(x,&xa);CHKERRQ(ierr);
-    ierr = PetscPrintf(PETSC_COMM_WORLD,"The first six entries of x are:\n");CHKERRQ(ierr);
+    ierr = PetscPrintf(PETSC_COMM_WORLD,"\n\nThe first six entries of x are:\n");CHKERRQ(ierr);
     for (i=0; i<6; i++) {
-      ierr = PetscPrintf(PETSC_COMM_WORLD,"x[%D] = %g + %g i\n",i,(double)PetscRealPart(xa[i]),(double)PetscImaginaryPart(xa[i]));CHKERRQ(ierr);
+      ierr = PetscPrintf(PETSC_COMM_WORLD,"  x[%D] = %g + %g i\n",i,(double)PetscRealPart(xa[i]),(double)PetscImaginaryPart(xa[i]));CHKERRQ(ierr);
     }
+    ierr = PetscPrintf(PETSC_COMM_WORLD,"\n\n");CHKERRQ(ierr);
     ierr = VecRestoreArray(x,&xa);CHKERRQ(ierr);
   }
 
