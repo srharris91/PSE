@@ -34,7 +34,7 @@ T*/
 #include <stdio.h>
 #include <iostream>
 
-#include "PSE.h"
+#include "PSE.hpp"
 
 int main(int argc,char **args)
 {

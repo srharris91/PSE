@@ -1,13 +1,4 @@
-int base_flow(PetscScalar *U, PetscScalar *Uy, PetscScalar Uyy, PetscScalar *y, int n, PetscBool output_full=PETSC_FALSE, PetscInt Dim=2){
-    //PetscScalar U[n], Uy[n], Uyy;
-    for(int i=0; i<n; i++){
-        U[i] = 1. - y[i]*y[i];
-        Uy[i]= -2.*y[i];
-    }
-    Uyy = -2.;
-
-    return 0;
-}
+#include "base_flow.hpp"
 int Read_q(PetscScalar *RHS_True,int n){
     PetscErrorCode ierr;
     char buff[]="tofile.dat";

@@ -4,7 +4,7 @@ FFLAGS	         =
 CPPFLAGS         = -std=c++14
 FPPFLAGS         =
 NP               = 3
-OBJFILES         = PSE.o
+OBJFILES         = PSE.o base_flow.o
 EXECUTABLE       = PSE
 
 include ${PETSC_DIR}/lib/petsc/conf/variables
