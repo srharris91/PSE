@@ -4,7 +4,8 @@ FFLAGS	         =
 CPPFLAGS         = -std=c++14
 FPPFLAGS         =
 NP               = 3
-OBJFILES         = PSE.o base_flow.o
+SRCFILES         = $(wildcard *cpp)
+OBJFILES         = $(patsubst %.cpp,%.o,${SRCFILES})
 EXECUTABLE       = PSE
 
 include ${PETSC_DIR}/lib/petsc/conf/variables

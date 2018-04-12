@@ -1,15 +1,11 @@
-
 static char help[] = "Solves a linear system in parallel with KSP.\n\n";
 
-/*T
-   Concepts: KSP^solving the PSE equations
-   Concepts: complex numbers;
-   Concepts: Parabolic Stability Equations for Transition modeling
-   Processors: n
-T*/
+/** @file
+   \concepts KSP^solving the PSE equations
+   \concepts complex numbers;
+   \concepts Parabolic Stability Equations for Transition modeling
 
-/*
-   Description: Solves a complex linear system in parallel with KSP.
+   \description Solves a complex linear system in parallel with KSP.
 
    The model problem:
       Solve PSE equation in the channel flow
@@ -19,9 +15,7 @@ T*/
    Compiling the code:
       This code uses the complex numbers version of PETSc, so configure
       must be run to enable this
-*/
 
-/*
   Include "petscksp.h" so that we can use KSP solvers.  Note that this file
   automatically includes:
      petscsys.h       - base PETSc routines   petscvec.h - vectors
@@ -29,11 +23,6 @@ T*/
      petscis.h     - index sets            petscksp.h - Krylov subspace methods
      petscviewer.h - viewers               petscpc.h  - preconditioners
 */
-#include <petscksp.h>
-#include <petscsys.h>
-#include <stdio.h>
-#include <iostream>
-
 #include "PSE.hpp"
 
 int main(int argc,char **args)
@@ -55,19 +44,18 @@ int main(int argc,char **args)
   ierr = PetscInitialize(&argc,&args,(char*)0,help);if (ierr) return ierr;
 
   // solve Ax=b problem
-  ierr = Ax_b(Atest[0],x,btest,n,argc,args); CHKERRQ(ierr);
+  ierr = PSE::Ax_b(Atest[0],x,btest,n,argc,args); CHKERRQ(ierr);
   // output solutions
-  for(int i=0; i<n; i++) {
-      ierr = PetscPrintf(PETSC_COMM_WORLD,"  x[%D] = %g + %g i\n",i,(double)PetscRealPart(x[i]),(double)PetscImaginaryPart(x[i]));CHKERRQ(ierr);}
+  //for(int i=0; i<n; i++) {
+      //ierr = PetscPrintf(PETSC_COMM_WORLD,"  x[%D] = %g + %g i\n",i,(double)PetscRealPart(x[i]),(double)PetscImaginaryPart(x[i]));CHKERRQ(ierr);}
+  PSE::printScalar(x,n);
 
   // solve Ax=b problem
-  ierr = Ax_b(Atest[0],x2,btest,n,argc,args); CHKERRQ(ierr);
+  ierr = PSE::Ax_b(Atest[0],x2,btest,n,argc,args); CHKERRQ(ierr);
   // output solutions
-  for(int i=0; i<n; i++) {
-      ierr = PetscPrintf(PETSC_COMM_WORLD,"  x2[%D] = %g + %g i\n",i,(double)PetscRealPart(x2[i]),(double)PetscImaginaryPart(x[i]));CHKERRQ(ierr);}
-
-
-
+  //for(int i=0; i<n; i++) {
+      //ierr = PetscPrintf(PETSC_COMM_WORLD,"  x2[%D] = %g + %g i\n",i,(double)PetscRealPart(x2[i]),(double)PetscImaginaryPart(x[i]));CHKERRQ(ierr);}
+  PSE::printScalar(x2,n,"x2");
 
 
 
