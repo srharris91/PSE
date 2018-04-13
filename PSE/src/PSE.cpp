@@ -26,11 +26,12 @@ static char help[] = "Solves a linear system in parallel with KSP.\n\n";
 #include "PSE.hpp"
 
 int main(int argc,char **args){
+    PetscErrorCode ierr;
+    ierr = PetscInitialize(&argc,&args,(char*)0,help);if (ierr) return ierr;
     // test Ax=b solver twice
     if (1){
         // init some variables
         PetscInt       n = 6;
-        PetscErrorCode ierr;
         Vec    x,x2; 
         PetscScalar    Atest[n][6] = {
             {1,1,-2,1,3,-4},
@@ -47,39 +48,38 @@ int main(int argc,char **args){
                 Atest2[i][j] = Atest[i][j];
             }
         }
-        PetscScalar    btest[] = {7,20,-15,-3,16,-27};
+        PetscScalar b_nondynamic[] = {7,20,-15,-3,16,-27};
+        PetscScalar    *btest = new PetscScalar[n];
+        for (int i=0; i<n; i++) btest[i] = b_nondynamic[i];
 
         // initialize Petsc
-        ierr = PetscInitialize(&argc,&args,(char*)0,help);if (ierr) return ierr;
         PSE::Init_x(x,n);
-        PSE::Init_x(x2,n);
 
         // solve Ax=b problem
         ierr = PSE::Ax_b(Atest2,x,btest,n); CHKERRQ(ierr);
         // output solutions
-        PSE::printVec(x,n);
+        PSE::printVecView(x,n);
 
         // solve Ax=b problem
+        PSE::Init_x(x2,n);
         ierr = PSE::Ax_b(Atest2,x2,btest,n); CHKERRQ(ierr);
-        // output solutions
-        PSE::printVec(x2,n,"x2");
+        PSE::printVecView(x2,n,"x2");
 
         // finalize
         for (int i=0; i<n; i++) delete[] Atest2[i];
         delete[] Atest2;
-        //ierr = PetscFinalize();
-        //return ierr;
+        delete[] btest;
+        ierr = VecDestroy(&x);CHKERRQ(ierr);
+        ierr = VecDestroy(&x2);CHKERRQ(ierr);
     }
     // test Read_q
-    if (0){
+    if (1){
         PetscInt n=6;
-        PetscScalar q[n];
-        PetscErrorCode ierr;
-        ierr = PetscInitialize(&argc,&args,(char*)0,help);if (ierr) return ierr;
+        Vec q;
+        PSE::Init_x(q,n);
         PSE::Read_q(q,n);
-        PSE::printScalar(q,n,"After reading vector = ");
-        ierr = PetscFinalize();
-        return ierr;
+        PSE::printVecView(q,n,"After reading vector = ");
+        ierr = VecDestroy(&q);CHKERRQ(ierr);
     }
     // test get_D_Coeffs
     if (1){
@@ -87,20 +87,17 @@ int main(int argc,char **args){
         PetscScalar s[]={-3,-2,-1,0};
         PetscInt n=4;
         //PetscScalar output[n];
-        PetscErrorCode ierr;
-
-        ierr = PetscInitialize(&argc,&args,(char*)0,help);if (ierr) return ierr;
 
         PSE::Init_x(x,n);
 
 
         PSE::get_D_Coeffs(s,n,x);
-        PSE::printVec(x,n,"after");
+        PSE::printVecView(x,n,"after");
 
         ierr = VecDestroy(&x);CHKERRQ(ierr);
-        ierr = PetscFinalize();
-        return 0;
     }
+    ierr = PetscFinalize();
+    return ierr;
 
 
 }

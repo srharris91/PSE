@@ -6,7 +6,7 @@ namespace PSE
 {
     /** 
      * 
-     * Solve arbitrary stencil points s of length N with order of derivatives d<N
+     * \brief Solve arbitrary stencil points s of length N with order of derivatives d<N
      * can be obtained from equation on MIT website
      * http://web.media.mit.edu/~crtaylor/calculator.html
      * where the accuracy is determined as the usual form O(h^(N-d))

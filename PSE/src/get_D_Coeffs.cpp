@@ -31,7 +31,7 @@ namespace PSE
 
         // solve Ax=b problem in parallel using PSE::Ax_b
         ierr = Ax_b(A,output,b,n); CHKERRQ(ierr);
-        printVec(output,n);
+        //printVecView(output,n);
         
 
 

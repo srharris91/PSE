@@ -1,4 +1,5 @@
 #include "Ax_b.hpp"
+#include "print.hpp"
 #include <iostream>
 
 namespace PSE
@@ -13,6 +14,7 @@ namespace PSE
         Mat            A;            /* linear system matrix */
         KSP            ksp;         /* linear solver context */
         PetscInt       dim,i,Ii,Istart,Iend,col[n];//,j
+        PetscScalar    zero=0.;//,one=1.;
         for(i=0;i<n;i++) col[i]=i;
         PetscErrorCode ierr;
         //PetscScalar    *xa;
@@ -42,7 +44,7 @@ namespace PSE
 
         for (Ii=Istart; Ii<Iend; Ii++){ // in parallel
             //std::cout<<"Ii = "<<Ii<<" of start "<<Istart<<" to end "<<Iend<<std::endl;
-        //for(i=0; i<n; i++){  // in serial
+        //for(Ii=0; Ii<n; Ii++){  // in serial
 
             ierr = MatSetValues(A,1,&Ii,n,col,Ain[Ii],INSERT_VALUES);CHKERRQ(ierr);
         }
@@ -64,9 +66,13 @@ namespace PSE
         //ierr = VecSetSizes(b,PETSC_DECIDE,dim);CHKERRQ(ierr);
         //ierr = VecSetFromOptions(b);CHKERRQ(ierr);
         ierr = VecDuplicate(x,&b);CHKERRQ(ierr);
+        //VecSet(x,one);
+        VecSet(b,zero);
 
         // set right-hand-side vector.
-        ierr = VecSetValues(b,n,col,bin,INSERT_VALUES);CHKERRQ(ierr);
+        for (Ii=Istart; Ii<Iend; Ii++){ // in parallel
+            ierr = VecSetValues(b,1,&Ii,&bin[Ii],INSERT_VALUES);CHKERRQ(ierr);
+        }
 
         ierr = VecAssemblyBegin(b); CHKERRQ(ierr);
         ierr = VecAssemblyEnd(b); CHKERRQ(ierr);
@@ -87,12 +93,13 @@ namespace PSE
         // Solve the linear system
         ierr = KSPSolve(ksp,b,x);CHKERRQ(ierr);
 
+        // set x to all 
         // Check solution and clean up
         // Print the first 3 entries of x; this demonstrates extraction of the
         // real and imaginary components of the complex vector, x.
         //ierr = VecGetArray(x,&xa);CHKERRQ(ierr);
-        //ierr = PetscPrintf(PETSC_COMM_WORLD,"\n\nThe first six entries of x are:\n");CHKERRQ(ierr);
-        //for (i=0; i<6; i++) {
+        //ierr = PetscPrintf(PETSC_COMM_WORLD,"\n\nThe entries of x are:\n");CHKERRQ(ierr);
+        //for (i=0; i<dim; i++) {
             //ierr = PetscPrintf(PETSC_COMM_WORLD,"  x[%D] = %g + %g i\n",i,(double)PetscRealPart(xa[i]),(double)PetscImaginaryPart(xa[i]));CHKERRQ(ierr);
             //xout[i] = xa[i]; // copy to xout
         //}
@@ -100,6 +107,8 @@ namespace PSE
         //ierr = VecRestoreArray(x,&xa);CHKERRQ(ierr);
 
         // Free work space.  All PETSc objects should be destroyed when they
+        //ierr = VecAssemblyBegin(x); CHKERRQ(ierr);
+        //ierr = VecAssemblyEnd(x); CHKERRQ(ierr);
         // are no longer needed.
         ierr = KSPDestroy(&ksp);CHKERRQ(ierr);
         //ierr = VecDestroy(&x);CHKERRQ(ierr);
