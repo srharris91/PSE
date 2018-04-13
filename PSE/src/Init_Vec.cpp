@@ -1,10 +1,10 @@
-#include "Init_x.hpp"
+#include "Init_Vec.hpp"
 #include "print.hpp"
 #include <iostream>
 namespace PSE{
-    int Init_x(
+    int Init_Vec(
             Vec &x, 
-            PetscInt &n
+            const PetscInt &n
             ){
         PetscErrorCode ierr;
         ierr = VecCreate(PETSC_COMM_WORLD,&x);CHKERRQ(ierr);

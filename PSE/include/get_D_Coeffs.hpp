@@ -14,10 +14,10 @@ namespace PSE
      * ierr from Ax=b solver
      */
     PetscInt get_D_Coeffs(
-            PetscScalar s[],                ///< array of stencil points e.g. [-3,-2,-1,0,1]
-            PetscInt n,                     ///< size of stencil
+            const PetscScalar s[],                ///< array of stencil points e.g. [-3,-2,-1,0,1]
+            const PetscInt &n,                     ///< size of stencil
             Vec &output,           ///< output of coefficient values for the given stencil
-            PetscInt d=2                    ///< order of desired derivative (default=2)
+            const PetscInt &d=2                    ///< order of desired derivative (default=2)
             );
 }
 #endif

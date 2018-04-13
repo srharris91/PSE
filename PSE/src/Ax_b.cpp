@@ -1,3 +1,4 @@
+#include "Init_Mat.hpp"
 #include "Ax_b.hpp"
 #include "print.hpp"
 #include <iostream>
@@ -13,7 +14,7 @@ namespace PSE
         Vec            b;      /* approx solution, RHS, exact solution */
         Mat            A;            /* linear system matrix */
         KSP            ksp;         /* linear solver context */
-        PetscInt       dim,i,Ii,Istart,Iend,col[n];//,j
+        PetscInt       i,Ii,Istart,Iend,col[n];//,j
         PetscScalar    zero=0.;//,one=1.;
         for(i=0;i<n;i++) col[i]=i;
         PetscErrorCode ierr;
@@ -22,7 +23,7 @@ namespace PSE
 
         //ierr = PetscInitialize(&argc,&args,(char*)0,help);if (ierr) return ierr;
         //ierr = PetscOptionsGetInt(NULL,NULL,"-n",&n,NULL);CHKERRQ(ierr);
-        dim  = n;
+        //dim  = n;
 
         // Compute the matrix and right-hand-side vector that define
         // the linear system, Ax = b.
@@ -30,10 +31,11 @@ namespace PSE
         // When using MatCreate(), the matrix format can be specified at
         // runtime. Also, the parallel partitioning of the matrix is
         // determined by PETSc at runtime.
-        ierr = MatCreate(PETSC_COMM_WORLD,&A);CHKERRQ(ierr);
-        ierr = MatSetSizes(A,PETSC_DECIDE,PETSC_DECIDE,dim,dim);CHKERRQ(ierr);
-        ierr = MatSetFromOptions(A);CHKERRQ(ierr);
-        ierr = MatSetUp(A);CHKERRQ(ierr);
+        //ierr = MatCreate(PETSC_COMM_WORLD,&A);CHKERRQ(ierr);
+        //ierr = MatSetSizes(A,PETSC_DECIDE,PETSC_DECIDE,dim,dim);CHKERRQ(ierr);
+        //ierr = MatSetFromOptions(A);CHKERRQ(ierr);
+        //ierr = MatSetUp(A);CHKERRQ(ierr);
+        Init_Mat(A,n);
 
         // Currently, all PETSc parallel matrix formats are partitioned by
         // contiguous chunks of rows across the processors.  Determine which

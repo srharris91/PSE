@@ -7,10 +7,10 @@
 namespace PSE
 {
     PetscInt get_D_Coeffs(
-            PetscScalar s[],
-            PetscInt n,
+            const PetscScalar s[],
+            const PetscInt &n,
             Vec &output,
-            PetscInt d 
+            const PetscInt &d 
             ){
         PetscErrorCode ierr;
         // create A dynamic 2d array of correct square shape

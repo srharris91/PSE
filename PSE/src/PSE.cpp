@@ -29,7 +29,7 @@ int main(int argc,char **args){
     PetscErrorCode ierr;
     ierr = PetscInitialize(&argc,&args,(char*)0,help);if (ierr) return ierr;
     // test Ax=b solver twice
-    if (1){
+    if (0){
         // init some variables
         PetscInt       n = 6;
         Vec    x,x2; 
@@ -53,7 +53,7 @@ int main(int argc,char **args){
         for (int i=0; i<n; i++) btest[i] = b_nondynamic[i];
 
         // initialize Petsc
-        PSE::Init_x(x,n);
+        PSE::Init_Vec(x,n);
 
         // solve Ax=b problem
         ierr = PSE::Ax_b(Atest2,x,btest,n); CHKERRQ(ierr);
@@ -61,7 +61,7 @@ int main(int argc,char **args){
         PSE::printVecView(x,n);
 
         // solve Ax=b problem
-        PSE::Init_x(x2,n);
+        PSE::Init_Vec(x2,n);
         ierr = PSE::Ax_b(Atest2,x2,btest,n); CHKERRQ(ierr);
         PSE::printVecView(x2,n,"x2");
 
@@ -73,10 +73,10 @@ int main(int argc,char **args){
         ierr = VecDestroy(&x2);CHKERRQ(ierr);
     }
     // test Read_q
-    if (1){
+    if (0){
         PetscInt n=6;
         Vec q;
-        PSE::Init_x(q,n);
+        PSE::Init_Vec(q,n);
         PSE::Read_q(q,n);
         PSE::printVecView(q,n,"After reading vector = ");
         ierr = VecDestroy(&q);CHKERRQ(ierr);
@@ -84,17 +84,34 @@ int main(int argc,char **args){
     // test get_D_Coeffs
     if (1){
         Vec x;
-        PetscScalar s[]={-3,-2,-1,0};
+        //PetscScalar s[]={-3,-2,-1,0};
         PetscInt n=4;
+        PetscScalar *s=new PetscScalar[n];
+        s[0] = -3;
+        s[1] = -2;
+        s[2] = -1;
+        s[3] = 0;
         //PetscScalar output[n];
 
-        PSE::Init_x(x,n);
+        PSE::Init_Vec(x,n);
 
 
         PSE::get_D_Coeffs(s,n,x);
         PSE::printVecView(x,n,"after");
 
         ierr = VecDestroy(&x);CHKERRQ(ierr);
+        delete[] s;
+    }
+    if(1){
+        Mat Dyy;
+        PetscInt n=100;
+        PetscScalar y[n];
+        for (int i=0; i<n; i++) y[i] = i;
+        PSE::Init_Mat(Dyy,n);
+        PSE::set_D(y,n,Dyy);
+
+
+        ierr = MatDestroy(&Dyy);CHKERRQ(ierr);
     }
     ierr = PetscFinalize();
     return ierr;

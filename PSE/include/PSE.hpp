@@ -33,6 +33,8 @@
 #include "Read_q.hpp"
 #include "print.hpp"
 #include "get_D_Coeffs.hpp"
-#include "Init_x.hpp"
+#include "Init_Vec.hpp"
+#include "Init_Mat.hpp"
+#include "set_D.hpp"
 
 #endif
