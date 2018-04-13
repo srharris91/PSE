@@ -25,41 +25,82 @@ static char help[] = "Solves a linear system in parallel with KSP.\n\n";
 */
 #include "PSE.hpp"
 
-int main(int argc,char **args)
-{
-    // init some variables
-  PetscInt       n = 6;
-  PetscErrorCode ierr;
-  PetscScalar    x[n],x2[n]; 
-  PetscScalar    Atest[n][6] = {
-      {1,1,-2,1,3,-4},
-      {2,-1,1,2,1,-3},
-      {1,3,-3,-1,2,1},
-      {5,2,-1,-1,2,1},
-      {-3,-1,2,3,1,3},
-      {4,3,1,-6,-3,-2} };
-  PetscScalar    btest[] = {7,20,-15,-3,16,-27};
+int main(int argc,char **args){
+    // test Ax=b solver twice
+    if (1){
+        // init some variables
+        PetscInt       n = 6;
+        PetscErrorCode ierr;
+        Vec    x,x2; 
+        PetscScalar    Atest[n][6] = {
+            {1,1,-2,1,3,-4},
+            {2,-1,1,2,1,-3},
+            {1,3,-3,-1,2,1},
+            {5,2,-1,-1,2,1},
+            {-3,-1,2,3,1,3},
+            {4,3,1,-6,-3,-2} };
+        PetscScalar **Atest2 = new PetscScalar*[n];
+        for (int i=0; i<n; i++) Atest2[i] = new PetscScalar[n];
 
-  // initialize Petsc
-  ierr = PetscInitialize(&argc,&args,(char*)0,help);if (ierr) return ierr;
+        for (int i=0; i<n; i++){
+            for (int j=0; j<n; j++){
+                Atest2[i][j] = Atest[i][j];
+            }
+        }
+        PetscScalar    btest[] = {7,20,-15,-3,16,-27};
 
-  // solve Ax=b problem
-  ierr = PSE::Ax_b(Atest[0],x,btest,n,argc,args); CHKERRQ(ierr);
-  // output solutions
-  //for(int i=0; i<n; i++) {
-      //ierr = PetscPrintf(PETSC_COMM_WORLD,"  x[%D] = %g + %g i\n",i,(double)PetscRealPart(x[i]),(double)PetscImaginaryPart(x[i]));CHKERRQ(ierr);}
-  PSE::printScalar(x,n);
+        // initialize Petsc
+        ierr = PetscInitialize(&argc,&args,(char*)0,help);if (ierr) return ierr;
+        PSE::Init_x(x,n);
+        PSE::Init_x(x2,n);
 
-  // solve Ax=b problem
-  ierr = PSE::Ax_b(Atest[0],x2,btest,n,argc,args); CHKERRQ(ierr);
-  // output solutions
-  //for(int i=0; i<n; i++) {
-      //ierr = PetscPrintf(PETSC_COMM_WORLD,"  x2[%D] = %g + %g i\n",i,(double)PetscRealPart(x2[i]),(double)PetscImaginaryPart(x[i]));CHKERRQ(ierr);}
-  PSE::printScalar(x2,n,"x2");
+        // solve Ax=b problem
+        ierr = PSE::Ax_b(Atest2,x,btest,n); CHKERRQ(ierr);
+        // output solutions
+        PSE::printVec(x,n);
+
+        // solve Ax=b problem
+        ierr = PSE::Ax_b(Atest2,x2,btest,n); CHKERRQ(ierr);
+        // output solutions
+        PSE::printVec(x2,n,"x2");
+
+        // finalize
+        for (int i=0; i<n; i++) delete[] Atest2[i];
+        delete[] Atest2;
+        //ierr = PetscFinalize();
+        //return ierr;
+    }
+    // test Read_q
+    if (0){
+        PetscInt n=6;
+        PetscScalar q[n];
+        PetscErrorCode ierr;
+        ierr = PetscInitialize(&argc,&args,(char*)0,help);if (ierr) return ierr;
+        PSE::Read_q(q,n);
+        PSE::printScalar(q,n,"After reading vector = ");
+        ierr = PetscFinalize();
+        return ierr;
+    }
+    // test get_D_Coeffs
+    if (1){
+        Vec x;
+        PetscScalar s[]={-3,-2,-1,0};
+        PetscInt n=4;
+        //PetscScalar output[n];
+        PetscErrorCode ierr;
+
+        ierr = PetscInitialize(&argc,&args,(char*)0,help);if (ierr) return ierr;
+
+        PSE::Init_x(x,n);
 
 
+        PSE::get_D_Coeffs(s,n,x);
+        PSE::printVec(x,n,"after");
 
-  // finalize
-  ierr = PetscFinalize();
-  return ierr;
+        ierr = VecDestroy(&x);CHKERRQ(ierr);
+        ierr = PetscFinalize();
+        return 0;
+    }
+
+
 }

@@ -11,6 +11,9 @@ include ${PETSC_DIR}/lib/petsc/conf/rules
 #----------------------------------------------------------------------------
 # example from tutorials
 #----------------------------------------------------------------------------
+exPass: Pass2DToFunction.o
+	-${CLINKER} -o Pass2D Pass2DToFunction.o  ${PETSC_KSP_LIB}
+	${RM} Pass2DToFunction.o
 ex11: ex11.o 
 	-${CLINKER} -o ex11 ex11.o  ${PETSC_KSP_LIB}
 	${RM} ex11.o

@@ -1,3 +1,5 @@
+#ifndef PSE_H
+#define PSE_H
 /**@file
  * \mainpage PSE Solver
  * \author Shaun Harris (<A HREF="https://srharris91.github.io/" TARGET="_top">https://srharris91.github.io/</A>)\n
@@ -30,3 +32,7 @@
 #include "Ax_b.hpp"
 #include "Read_q.hpp"
 #include "print.hpp"
+#include "get_D_Coeffs.hpp"
+#include "Init_x.hpp"
+
+#endif

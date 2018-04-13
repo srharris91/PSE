@@ -9,12 +9,10 @@ namespace PSE
      * \return ierr from Petsc calls 
      */
     PetscErrorCode Ax_b(
-            PetscScalar Ain1[], ///< first row input of 2D \f$A\f$ matrix in \f$Ax=b\f$
-            PetscScalar xout[], ///< vector of \f$x\f$ in \f$Ax=b\f$
+            PetscScalar **Ain,  ///< input of 2D \f$A\f$ matrix in \f$Ax=b\f$ (must be dynamic pointer to pointer)
+            Vec &x, ///< vector of \f$x\f$ in \f$Ax=b\f$
             PetscScalar bin[],  ///< vector of \f$b\f$ in \f$Ax=b\f$
-            PetscInt n,         ///< n size of vectors or nxn matrix \f$A\f$
-            int argc,           ///< argc from int main()
-            char **args         ///< args from int main
+            PetscInt n          ///< n size of vectors or nxn matrix \f$A\f$
             );
 }
 #endif

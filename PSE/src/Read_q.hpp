@@ -9,8 +9,9 @@ namespace PSE
      * \return 0 if successful
      */
     int Read_q(
-            PetscScalar *RHS_True,  ///< PetscScalar vector of true RHS values in Ax=RHS matrix
-            int n                   ///< int size of vector
+            PetscScalar *output,    ///< vector to return after reading file
+            int n,                  ///< int size of vector
+            char const buff[]="tofile.dat"///< filename of binary to read (output of python script
             );
 }
 #endif
