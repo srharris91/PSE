@@ -36,5 +36,7 @@
 #include "Init_Vec.hpp"
 #include "Init_Mat.hpp"
 #include "set_D.hpp"
+#include "set_Mat.hpp"
+#include "set_Vec.hpp"
 
 #endif

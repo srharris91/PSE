@@ -82,7 +82,7 @@ int main(int argc,char **args){
         ierr = VecDestroy(&q);CHKERRQ(ierr);
     }
     // test get_D_Coeffs
-    if (1){
+    if (0){
         Vec x;
         //PetscScalar s[]={-3,-2,-1,0};
         PetscInt n=4;
@@ -91,6 +91,10 @@ int main(int argc,char **args){
         s[1] = -2;
         s[2] = -1;
         s[3] = 0;
+        Vec sVec;
+        PSE::Init_Vec(sVec,n);
+        PSE::set_Vec(s,n,sVec);
+        PSE::printVecView(sVec,n);
         //PetscScalar output[n];
 
         PSE::Init_Vec(x,n);
@@ -109,6 +113,7 @@ int main(int argc,char **args){
         for (int i=0; i<n; i++) y[i] = i;
         PSE::Init_Mat(Dyy,n);
         PSE::set_D(y,n,Dyy);
+        PSE::printMatView(Dyy,n);
 
 
         ierr = MatDestroy(&Dyy);CHKERRQ(ierr);

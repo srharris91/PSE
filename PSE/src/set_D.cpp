@@ -5,6 +5,8 @@
 #include "Init_Vec.hpp"
 #include "Init_Mat.hpp"
 #include "print.hpp"
+#include "set_Mat.hpp"
+#include "set_Vec.hpp"
 #include <iostream>
 
 namespace PSE
@@ -20,6 +22,8 @@ namespace PSE
             const PetscBool &periodic
             ){
         PetscErrorCode ierr;
+        PetscScalar *array,*sarray;
+        PetscInt i, nlocal;
         double h=y[1]-y[0]; // assume uniform spacing
         PetscInt N=order+d; // number of pts needed for order of accuracy
         if (N<n) {
@@ -32,13 +36,28 @@ namespace PSE
         PetscInt Nm1 = N-1; // how many pts needed if using central diff
         if (d % 2 !=0) Nm1+=1;// need one more pt in central diff if odd derivative
         PetscScalar *s = new PetscScalar[Nm1];
-        for (int i=0; i<Nm1; i++) s[i] = i - (int((Nm1-1)/2)); // stencil over central diff of order
-        for (int i=0; i<Nm1; i++) std::cout<<"s["<<i<<"] = "<<s[i]<<std::endl;; // stencil over central diff of order
+        for (i=0; i<Nm1; i++) s[i] = i - (int((Nm1-1)/2)); // stencil over central diff of order
+        //for (int i=0; i<Nm1; i++) std::cout<<"s["<<i<<"] = "<<s[i]<<std::endl;; // stencil over central diff of order
         PetscScalar smax = s[Nm1];
 
         Vec Coeffs;
         Init_Vec(Coeffs,Nm1);
         get_D_Coeffs(s,Nm1,Coeffs);
+
+        //set diagonals
+        Vec sVec;
+        Init_Vec(sVec,Nm1);
+        set_Vec(s,Nm1,sVec);
+        printVecView(sVec,Nm1);
+        VecGetLocalSize(Coeffs,&nlocal);
+        VecGetArray(Coeffs,&array);
+        VecGetArray(sVec,&sarray);
+        for (i=0; i<nlocal; i++) {
+            std::cout<<"sarray[i] = "<<sarray[i]<<" for nlocal = "<<nlocal<<std::endl;
+            std::cout<<"     array[i] = "<<array[i]<<" n= "<<n<<std::endl;
+            set_Mat(array[i],n,output,sarray[i]);
+        }
+        VecRestoreArray(Coeffs,&array);
         //printVecView(Coeffs,Nm1);
 
 
@@ -73,6 +92,7 @@ namespace PSE
         */
         delete[] s;
         ierr = VecDestroy(&Coeffs);CHKERRQ(ierr);
+        ierr = VecDestroy(&sVec);CHKERRQ(ierr);
 
         return 0;
     }

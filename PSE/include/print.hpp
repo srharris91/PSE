@@ -46,6 +46,22 @@ namespace PSE
             char const name[]="x viewer",  ///< name of variable to output default to 'x'
             PetscViewerFormat format=PETSC_VIEWER_DEFAULT ///< format for viewer
             );
+    /** \brief view Petsc Mat variable to screen
+     *   Open an X-window viewer.  Note that we specify the same communicator
+     *    for the viewer as we used for the distributed vector (PETSC_COMM_WORLD).
+     *
+     *    - Helpful runtime option:
+     *
+     *    -draw_pause <pause> : sets time (in seconds) that the
+     *    program pauses after PetscDrawPause() has been called
+     *    (0 is default, -1 implies until user input).
+     */
+    void printMatView( 
+            Mat &A,             ///< Petsc Mat nxn matrix to print to screen
+            PetscInt n,         ///< size of nxn matrix to print
+            char const name[]="A viewer",  ///< name of variable to output default to 'A'
+            PetscViewerFormat format=PETSC_VIEWER_DEFAULT ///< format for viewer
+            );
 }
 
 #endif

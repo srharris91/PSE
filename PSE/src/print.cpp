@@ -45,4 +45,12 @@ namespace PSE
 
         VecView(x,viewer);
     }
+    void printMatView( Mat &A, PetscInt n,char const name[],PetscViewerFormat format){
+        PetscViewer     viewer;
+        PetscViewerDrawOpen(PETSC_COMM_WORLD, NULL,NULL, PETSC_DECIDE,PETSC_DECIDE,PETSC_DECIDE,PETSC_DECIDE,&viewer);
+        PetscObjectSetName((PetscObject)viewer,name);
+        PetscViewerPushFormat(viewer,format);
+
+        MatView(A,viewer);
+    }
 }
