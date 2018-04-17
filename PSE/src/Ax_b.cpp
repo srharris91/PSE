@@ -54,9 +54,9 @@ namespace PSE
         return 0;
     }
     PetscInt Ax_b(
-            const Mat A,
+            const Mat &A,
             Vec &x,
-            const Vec b,
+            const Vec &b,
             const PetscInt &n 
             ){
         KSP            ksp;         /* linear solver context */

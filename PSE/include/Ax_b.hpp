@@ -14,6 +14,7 @@ namespace PSE
             const PetscScalar bin[],  ///< vector of \f$b\f$ in \f$Ax=b\f$
             const PetscInt &n          ///< n size of vectors or nxn matrix \f$A\f$
             );
+
     /** 
      * \brief Solves \f$x\f$ in \f$Ax=b\f$ linalg problem using PETSc in parallel
      * \return 0 if successful
