@@ -12,7 +12,6 @@ namespace PSE
     int base_flow(
             PetscScalar U[],    ///< velocity along channel axis
             PetscScalar Uy[],   ///< first derivative of velocity
-            PetscScalar Uyy,    ///< second derivative of velocity 
             PetscScalar y[],    ///< input y vector (usually linspace(-1,1,n)
             int n,              ///< size of vectors
             PetscBool output_full=PETSC_FALSE, ///< do we output the full vector, or just the inner vector (no the edges)

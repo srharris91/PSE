@@ -4,7 +4,6 @@ namespace PSE
 {
     int base_flow(PetscScalar U[],
             PetscScalar Uy[],
-            PetscScalar Uyy,
             PetscScalar y[],
             int n,
             PetscBool output_full,
@@ -14,7 +13,6 @@ namespace PSE
             U[i] = 1. - y[i]*y[i];
             Uy[i]= -2.*y[i];
         }
-        Uyy = -2.;
 
         return 0;
     }

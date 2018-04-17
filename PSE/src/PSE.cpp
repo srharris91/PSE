@@ -108,7 +108,7 @@ int main(int argc,char **args){
     }
     if(1){
         Mat Dyyp,Dyy;
-        PetscInt n=100;
+        PetscInt n=10;
         PetscScalar y[n];
         for (int i=0; i<n; i++) y[i] = i;
         PSE::Init_Mat(Dyyp,n);
