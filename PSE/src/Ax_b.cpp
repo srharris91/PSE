@@ -21,6 +21,7 @@ namespace PSE
         
         // set A matrix
         set_Mat(Ain,n,A);
+        set_Mat(A);
 
         // Create parallel vectors.
         ierr = VecDuplicate(x,&b);CHKERRQ(ierr);

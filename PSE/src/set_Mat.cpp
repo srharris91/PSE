@@ -34,15 +34,16 @@ namespace PSE{
         ierr = MatAssemblyEnd(A,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
 
         return 0;
-        }
+    }
     PetscInt set_Mat(
             const PetscScalar &diag,
             const PetscInt &n,
             Mat &A,
-            const PetscInt &k
+            const PetscInt &k,
+            const PetscBool &parallel
             ){
-        PetscInt Istart, Iend, Ii;
         PetscErrorCode ierr;
+        PetscInt Istart, Iend, Ii;
 
         // initialize A matrix of right size
         //Init_Mat(A,n);
@@ -54,20 +55,35 @@ namespace PSE{
 
         // Set matrix elements (in parallel)
 
-        for (Ii=Istart; Ii<Iend; Ii++){ // in parallel all of the values
-            if (Ii+k >= 0 && Ii+k <= n-1){
-                ierr = MatSetValue(A,Ii,(Ii + k),diag,INSERT_VALUES);CHKERRQ(ierr);
+        if (parallel){
+            for (Ii=Istart; Ii<Iend; Ii++){ // in parallel all of the values
+                if (Ii+k >= 0 && Ii+k <= n-1){
+                    ierr = MatSetValue(A,Ii,(Ii + k),diag,INSERT_VALUES);CHKERRQ(ierr);
+                }
+            }
+        }
+        else{
+            for (Ii=0; Ii<n; Ii++){ // in parallel all of the values
+                if (Ii+k >= 0 && Ii+k <= n-1){
+                    ierr = MatSetValue(A,Ii,(Ii + k),diag,INSERT_VALUES);CHKERRQ(ierr);
+                }
             }
         }
 
 
+        return 0;
+    }
+    PetscInt set_Mat(
+            Mat &A  //< Mat to assemble
+            ){
         // Assemble matrix, using the 2-step process:
         // MatAssemblyBegin(), MatAssemblyEnd()
         // Computations can be done while messages are in transition
         // by placing code between these two statements.
+
+        PetscErrorCode ierr;
         ierr = MatAssemblyBegin(A,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
         ierr = MatAssemblyEnd(A,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
-
         return 0;
     }
 }

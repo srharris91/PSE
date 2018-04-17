@@ -14,9 +14,8 @@ namespace PSE
             Mat &output,            ///< output matrix(n-2 by n) dth derivative of order O(h^order) assuming uniform y spacing
             const PetscInt &order=2,  ///< order of accuracy desired (assuming even e.g. 2,4,6,...)
             const PetscInt &d=2 ,     ///< dth derivative
-            const PetscBool &reduce_wall_order=PETSC_TRUE, ///< reduce the order of accuracy at the wall?
-            const PetscBool &output_full=PETSC_FALSE, ///< output full matrix
-            const PetscBool &periodic=PETSC_FALSE   ///< periodic boundary
+            const PetscBool &periodic=PETSC_FALSE,  ///< periodic boundary
+            const PetscBool &reduce_wall_order=PETSC_TRUE  ///< reduce the order of accuracy at the wall?
             );
 }
 

@@ -107,12 +107,17 @@ int main(int argc,char **args){
         delete[] s;
     }
     if(1){
-        Mat Dyy;
+        Mat Dyyp,Dyy;
         PetscInt n=100;
         PetscScalar y[n];
         for (int i=0; i<n; i++) y[i] = i;
+        PSE::Init_Mat(Dyyp,n);
         PSE::Init_Mat(Dyy,n);
-        PSE::set_D(y,n,Dyy);
+        // set periodic
+        PSE::set_D(y,n,Dyyp,4,2,PETSC_TRUE);
+        PSE::printMatView(Dyyp,n);
+        // set non-periodic
+        PSE::set_D(y,n,Dyy,4,2);
         PSE::printMatView(Dyy,n);
 
 
