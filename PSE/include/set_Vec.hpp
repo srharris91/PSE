@@ -10,7 +10,17 @@ namespace PSE{
     PetscInt set_Vec(
             const PetscScalar *bin,   ///< array set on all processors as 1D array
             const PetscInt &n,        ///< size of n array
-            Vec &b              ///< Vec to SetValues and output in parallel
+            Vec &b,             ///< Vec to SetValues and output in parallel
+            const PetscBool &parallel=PETSC_TRUE ///< set in parallel
+            );
+
+    /**
+     * \brief Assemble b vector
+     * \return 0 if successful
+     *
+     */
+    PetscInt set_Vec(
+            Vec &b ///< array to assemble on all processors
             );
 }
 

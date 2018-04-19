@@ -106,23 +106,41 @@ int main(int argc,char **args){
         ierr = VecDestroy(&x);CHKERRQ(ierr);
         delete[] s;
     }
-    if(1){
-        Mat Dyyp,Dyy;
+    // set D derivative operators
+    if(0){
+        Mat Dyyp,Dy;
         PetscInt n=10;
         PetscScalar y[n];
         for (int i=0; i<n; i++) y[i] = i;
-        PSE::Init_Mat(Dyyp,n);
-        PSE::Init_Mat(Dyy,n);
         // set periodic
-        PSE::set_D(y,n,Dyyp,4,2,PETSC_TRUE);
+        PSE::set_D(y,n,Dyyp,4,1,PETSC_FALSE);
         PSE::printMatView(Dyyp,n);
         // set non-periodic
-        PSE::set_D(y,n,Dyy,4,2);
-        PSE::printMatView(Dyy,n);
+        PSE::set_D(y,n,Dy,4,2);
+        PSE::printMatView(Dy,n);
 
 
-        ierr = MatDestroy(&Dyy);CHKERRQ(ierr);
+        ierr = MatDestroy(&Dy);CHKERRQ(ierr);
+        ierr = MatDestroy(&Dyyp);CHKERRQ(ierr);
     }
+    // set A and B matrices
+    if(1){
+        Mat A,B;
+        PetscErrorCode ierr;
+        PetscInt ny=10,nz=6;
+        PetscInt dim=ny*nz*4;
+        PetscScalar y[ny],z[nz];
+        for (int i=0; i<ny; i++) y[i] = i;
+        for (int i=0; i<nz; i++) z[i] = 20*i;
+
+        PSE::set_A_and_B(y,ny,z,nz,A,B);
+        PSE::printMatView(A,dim);
+        PSE::printMatView(B,dim);
+
+        ierr = MatDestroy(&A);CHKERRQ(ierr);
+        ierr = MatDestroy(&B);CHKERRQ(ierr);
+    }
+
     ierr = PetscFinalize();
     return ierr;
 

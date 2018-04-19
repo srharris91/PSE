@@ -22,7 +22,7 @@ namespace PSE
             const PetscBool &reduce_wall_order
             ){
         //Mat D;
-        //Init_Mat(D,n);
+        Init_Mat(output,n);
         PetscErrorCode ierr;
         PetscScalar *array,*sarray;
         PetscInt i, j, nlocal;
@@ -44,9 +44,9 @@ namespace PSE
         PetscScalar smax = s[Nm1-1];
 
         // solve for Coefficients given stencil
-        Vec Coeffs;
-        Init_Vec(Coeffs,Nm1);
-        get_D_Coeffs(s,Nm1,Coeffs);
+        Vec CoeffsMain;
+        //Init_Vec(CoeffsMain,Nm1);
+        get_D_Coeffs(s,Nm1,CoeffsMain,d);
         //printVecView(Coeffs,Nm1);
 
         //set diagonals
@@ -55,8 +55,8 @@ namespace PSE
         set_Vec(s,Nm1,sVec);
         //printVecView(sVec,Nm1);
         // set D matrix
-        VecGetLocalSize(Coeffs,&nlocal);
-        VecGetArray(Coeffs,&array);
+        VecGetLocalSize(CoeffsMain,&nlocal);
+        VecGetArray(CoeffsMain,&array);
         VecGetArray(sVec,&sarray);
         // set main diagonals
         PetscBool parallel=PETSC_FALSE;
@@ -73,19 +73,21 @@ namespace PSE
             }
         }
         set_Mat(output); // do nothing, but assemble
-        VecRestoreArray(Coeffs,&array);
-        VecRestoreArray(sVec,&array);
+        VecRestoreArray(CoeffsMain,&array);
+        VecRestoreArray(sVec,&sarray);
 
         // set BC so we don't go out of range on top and bottom
         if (!periodic){
-            if (d % 2 !=0) Nm1-=1;// need one less pt in central diff if odd derivative (vs central)
+            //if (d % 2 !=0) Nm1-=1;// need one less pt in shifted diff if odd derivative (vs central)
+            Vec Coeffsbottom[(PetscInt)smax];
+            Vec Coeffstop[(PetscInt)smax];
             for (i=0; i<smax; i++){
                 // bottom BC
                 if (reduce_wall_order){
                     PetscScalar *s = new PetscScalar[Nm1]; // resize
                     for (j=0; j<Nm1; j++) s[j] = j - i; // stencil over central diff of order
                     // solve for Coefficients given stencil
-                    get_D_Coeffs(s,Nm1,Coeffs);
+                    get_D_Coeffs(s,Nm1,Coeffsbottom[i],d);
                     // set values in matrix
                     set_Vec(s,Nm1,sVec);
                     //printVecView(sVec,Nm1);
@@ -94,28 +96,29 @@ namespace PSE
                     PetscScalar *s = new PetscScalar[N]; // resize
                     for (j=0; j<N; j++) s[j] = j - i; // stencil over central diff of order
                     // solve for Coefficients given stencil
-                    get_D_Coeffs(s,N,Coeffs);
+                    get_D_Coeffs(s,N,Coeffsbottom[i],d);
                     // set values in matrix
                     set_Vec(s,N,sVec);
                 }
                 // set D matrix
-                VecGetLocalSize(Coeffs,&nlocal);
-                VecGetArray(Coeffs,&array);
+                VecGetLocalSize(Coeffsbottom[i],&nlocal);
+                VecGetArray(Coeffsbottom[i],&array);
                 VecGetArray(sVec,&sarray);
                 for (j=0; j<nlocal; j++) { 
                     MatSetValue(output,i,sarray[j]+i,array[j]/denom,INSERT_VALUES);
                     //std::cout<<" row = "<<i<<" col = "<<sarray[j]+i<<" value = "<<array[j]/denom<<std::endl;
                 }
                 set_Mat(output); // do nothing, but assemble
-                VecRestoreArray(Coeffs,&array);
-                VecRestoreArray(sVec,&array);
+                VecRestoreArray(Coeffsbottom[i],&array);
+                ierr = VecDestroy(&Coeffsbottom[i]);CHKERRQ(ierr);
+                VecRestoreArray(sVec,&sarray);
  
                 // top BC
                 if (reduce_wall_order){
                     PetscScalar *s = new PetscScalar[Nm1]; // resize
                     for (j=0; j<Nm1; j++) s[j] = -(j - i); // stencil over central diff of order
                     // solve for Coefficients given stencil
-                    get_D_Coeffs(s,Nm1,Coeffs);
+                    get_D_Coeffs(s,Nm1,Coeffstop[i],d);
                     // set values in matrix
                     set_Vec(s,Nm1,sVec);
                     //printVecView(sVec,Nm1);
@@ -124,21 +127,25 @@ namespace PSE
                     PetscScalar *s = new PetscScalar[N]; // resize
                     for (j=0; j<N; j++) s[j] = -(j - i); // stencil over central diff of order
                     // solve for Coefficients given stencil
-                    get_D_Coeffs(s,N,Coeffs);
+                    get_D_Coeffs(s,N,Coeffstop[i],d);
                     // set values in matrix
                     set_Vec(s,N,sVec);
                 }
                 // set D matrix
-                VecGetLocalSize(Coeffs,&nlocal);
-                VecGetArray(Coeffs,&array);
+                VecGetLocalSize(Coeffstop[i],&nlocal);
+                VecGetArray(Coeffstop[i],&array);
                 VecGetArray(sVec,&sarray);
                 for (j=0; j<nlocal; j++) { 
-                    MatSetValue(output,n-i-1,n+sarray[j]-i-1,array[j]/denom,INSERT_VALUES);
-                    //std::cout<<" row = "<<n-i-1<<" col = "<<n+sarray[j]-i-1<<" value = "<<array[j]/denom<<std::endl;
+                    MatSetValue(output,n-i-1,n-i-1+sarray[j],array[j]/denom,INSERT_VALUES);
+                    //std::cout<<" row = "<<n-i-1<<" col = "<<n-i-1+sarray[j]<<" value = "<<array[j]*12.<<"\n";
+                    //std::cout<<"      n= "<<n<<" sarray[j] = "<<sarray[j]<<" i="<<i<<std::endl;
                 }
+                //std::cout<<"Nm1 = "<<Nm1<<" for smaxi = "<<i<<std::endl;
+                //std::cout<<"  got D coeffs for smaxi = "<<i<<std::endl;
                 set_Mat(output); // do nothing, but assemble
-                VecRestoreArray(Coeffs,&array);
-                VecRestoreArray(sVec,&array);
+                VecRestoreArray(Coeffstop[i],&array);
+                VecRestoreArray(sVec,&sarray);
+                ierr = VecDestroy(&Coeffstop[i]);CHKERRQ(ierr);
             }
         }
         //printVecView(Coeffs,Nm1);
@@ -146,7 +153,7 @@ namespace PSE
         
 
         delete[] s;
-        ierr = VecDestroy(&Coeffs);CHKERRQ(ierr);
+        ierr = VecDestroy(&CoeffsMain);CHKERRQ(ierr);
         ierr = VecDestroy(&sVec);CHKERRQ(ierr);
         //ierr = MatDestroy(&D); CHKERRQ(ierr);
 

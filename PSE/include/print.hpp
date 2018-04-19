@@ -8,8 +8,8 @@ namespace PSE
      * \return ierr from PetscErrorCode of PetscPrintf
      */
     PetscErrorCode printScalar(
-            PetscScalar x[],    ///< PetscScalar array to print to screen
-            PetscInt n=1,              ///< size of scalar array to print
+            const PetscScalar x[],    ///< PetscScalar array to print to screen
+            const PetscInt n=1,              ///< size of scalar array to print
             char const name[]="x",    ///< name of variable to output default to 'x'
             PetscViewer viewer=PETSC_VIEWER_STDOUT_WORLD ///< format for viewer
             ); 

@@ -2,7 +2,7 @@
 #include <iostream>
 namespace PSE
 {
-    PetscErrorCode printScalar( PetscScalar x[], PetscInt n,char const name[],PetscViewer viewer){
+    PetscErrorCode printScalar( const PetscScalar x[], const PetscInt n,char const name[],PetscViewer viewer){
         PetscErrorCode ierr;
         if (n==1){
             ierr = PetscPrintf(PETSC_COMM_WORLD,"  %s = %g \n",name,(double)PetscRealPart(x[0]));CHKERRQ(ierr);

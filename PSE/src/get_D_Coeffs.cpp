@@ -3,6 +3,7 @@
 #include "factorial.hpp"
 #include <cmath>
 #include "print.hpp"
+#include "Init_Vec.hpp"
 
 namespace PSE
 {
@@ -12,6 +13,7 @@ namespace PSE
             Vec &output,
             const PetscInt &d 
             ){
+        Init_Vec(output,n);
         PetscErrorCode ierr;
         // create A dynamic 2d array of correct square shape
         PetscScalar **A=new PetscScalar*[n];
