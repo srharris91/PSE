@@ -15,6 +15,11 @@ namespace PSE
             const PetscInt &nz,     ///< size of z array
             Mat &A,                 ///< A matrix (uninitialized)
             Mat &B,                 ///< B matrix (uninitialized)
+            const PetscScalar &Re,  ///< Reynolds number
+            const PetscScalar &rho,  ///< rho density
+            const PetscScalar &alpha,///< alpha
+            const PetscScalar &m,   ///< m for omega
+            const PetscScalar &omega,///< omega value
             const PetscInt &order=4,  ///< order of accuracy of derivatives in finite difference
             const PetscBool &reduce_wall_order=PETSC_TRUE ///< reduce order of derivatives at the wall if true
             );

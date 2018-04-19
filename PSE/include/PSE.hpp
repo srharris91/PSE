@@ -19,6 +19,13 @@
  * F
  *
  * \f]
+ * \section compileinfo Petsc Compile Info
+ * Make sure to compile petsc with options
+ * \code{.sh}
+ * ./configure --with-scalar-type=complex --with-precision=double
+ *  \endcode
+ *
+ *
  * \section DownloadSourceCode Download
  * Download PSE Solver source code using following GitHub link:\n
  * <A HREF="https://github.com/srharris91/OrrSommerfeld_Squire.git" TARGET="_top">https://github.com/srharris91/OrrSommerfeld_Squire.git</A>

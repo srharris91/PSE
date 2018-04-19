@@ -60,15 +60,15 @@ namespace PSE
         VecGetArray(sVec,&sarray);
         // set main diagonals
         PetscBool parallel=PETSC_FALSE;
-        for (i=0; i<nlocal; i++) { set_Mat(array[i]/denom,n,output,sarray[i],parallel); }
+        for (i=0; i<nlocal; i++) { set_Mat(array[i]/denom,n,output,(PetscInt)PetscRealPart(sarray[i]),parallel); }
         // set periodic diagonals
         if (periodic){
             for (i=0; i<nlocal; i++) { 
-                if (sarray[i] > 0){
-                    set_Mat(array[i]/denom,n,output,sarray[i]-n,parallel);
+                if ((PetscInt)PetscRealPart(sarray[i]) > 0){
+                    set_Mat(array[i]/denom,n,output,(PetscInt)PetscRealPart(sarray[i])-n,parallel);
                 }
-                else if (sarray[i] < 0){
-                    set_Mat(array[i]/denom,n,output,sarray[i]+n,parallel);
+                else if ((PetscInt)PetscRealPart(sarray[i]) < 0){
+                    set_Mat(array[i]/denom,n,output,(PetscInt)PetscRealPart(sarray[i])+n,parallel);
                 }
             }
         }
@@ -79,9 +79,9 @@ namespace PSE
         // set BC so we don't go out of range on top and bottom
         if (!periodic){
             //if (d % 2 !=0) Nm1-=1;// need one less pt in shifted diff if odd derivative (vs central)
-            Vec Coeffsbottom[(PetscInt)smax];
-            Vec Coeffstop[(PetscInt)smax];
-            for (i=0; i<smax; i++){
+            Vec Coeffsbottom[(PetscInt)PetscRealPart(smax)];
+            Vec Coeffstop[(PetscInt)PetscRealPart(smax)];
+            for (i=0; i<PetscRealPart(smax); i++){
                 // bottom BC
                 if (reduce_wall_order){
                     PetscScalar *s = new PetscScalar[Nm1]; // resize
@@ -104,8 +104,9 @@ namespace PSE
                 VecGetLocalSize(Coeffsbottom[i],&nlocal);
                 VecGetArray(Coeffsbottom[i],&array);
                 VecGetArray(sVec,&sarray);
+                MatZeroRows(output,1,&i,0.,0,0);
                 for (j=0; j<nlocal; j++) { 
-                    MatSetValue(output,i,sarray[j]+i,array[j]/denom,INSERT_VALUES);
+                    MatSetValue(output,i,(PetscInt)PetscRealPart(sarray[j])+i,array[j]/denom,INSERT_VALUES);
                     //std::cout<<" row = "<<i<<" col = "<<sarray[j]+i<<" value = "<<array[j]/denom<<std::endl;
                 }
                 set_Mat(output); // do nothing, but assemble
@@ -135,8 +136,10 @@ namespace PSE
                 VecGetLocalSize(Coeffstop[i],&nlocal);
                 VecGetArray(Coeffstop[i],&array);
                 VecGetArray(sVec,&sarray);
+                PetscInt rowi = n-i-1;
+                MatZeroRows(output,1,&rowi,0.,0,0);
                 for (j=0; j<nlocal; j++) { 
-                    MatSetValue(output,n-i-1,n-i-1+sarray[j],array[j]/denom,INSERT_VALUES);
+                    MatSetValue(output,rowi,rowi+(PetscInt)PetscRealPart(sarray[j]),array[j]/denom,INSERT_VALUES);
                     //std::cout<<" row = "<<n-i-1<<" col = "<<n-i-1+sarray[j]<<" value = "<<array[j]*12.<<"\n";
                     //std::cout<<"      n= "<<n<<" sarray[j] = "<<sarray[j]<<" i="<<i<<std::endl;
                 }

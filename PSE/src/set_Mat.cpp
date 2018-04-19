@@ -27,7 +27,7 @@ namespace PSE{
             //std::cout<<"setting i="<<Ii<<" n="<<n<<" col[:] = ";
             //for(i=0;i<n;i++) std::cout<<col[i]<<", ";
             //std::cout<<std::endl;
-            ierr = MatSetValues(A,1,&Ii,n,col,Ain[Ii],INSERT_VALUES);CHKERRQ(ierr);
+            ierr = MatSetValues(A,1,&Ii,n,col,Ain[Ii],ADD_VALUES);CHKERRQ(ierr);
         }
         //std::cout<<"done setting i="<<Ii<<std::endl;
 
@@ -36,8 +36,8 @@ namespace PSE{
         // MatAssemblyBegin(), MatAssemblyEnd()
         // Computations can be done while messages are in transition
         // by placing code between these two statements.
-        ierr = MatAssemblyBegin(A,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
-        ierr = MatAssemblyEnd(A,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
+        //ierr = MatAssemblyBegin(A,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
+        //ierr = MatAssemblyEnd(A,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
 
         return 0;
     }
@@ -64,14 +64,14 @@ namespace PSE{
             ierr = MatGetOwnershipRange(A,&Istart,&Iend);CHKERRQ(ierr);
             for (Ii=Istart; Ii<Iend; Ii++){ // in parallel all of the values
                 if (Ii+k >= 0 && Ii+k <= n-1){
-                    ierr = MatSetValue(A,Ii,(Ii + k),diag,INSERT_VALUES);CHKERRQ(ierr);
+                    ierr = MatSetValue(A,Ii,(Ii + k),diag,ADD_VALUES);CHKERRQ(ierr);
                 }
             }
         }
         else{
             for (PetscInt Ii=0; Ii<n; Ii++){ // in parallel all of the values
                 if (Ii+k >= 0 && Ii+k <= n-1){
-                    ierr = MatSetValue(A,Ii,(Ii + k),diag,INSERT_VALUES);CHKERRQ(ierr);
+                    ierr = MatSetValue(A,Ii,(Ii + k),diag,ADD_VALUES);CHKERRQ(ierr);
                 }
             }
         }
@@ -105,7 +105,7 @@ namespace PSE{
             ierr = MatGetOwnershipRange(A,&Istart,&Iend);CHKERRQ(ierr);
             for (Ii=Istart; Ii<Iend; Ii++){ // in parallel all of the values
                 if (Ii == row){
-                    ierr = MatSetValue(A,row,col,value,INSERT_VALUES);CHKERRQ(ierr);
+                    ierr = MatSetValue(A,row,col,value,ADD_VALUES);CHKERRQ(ierr);
                 }
             }
         }
@@ -113,12 +113,13 @@ namespace PSE{
             PetscMPIInt rank;
             MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
             if(rank==0){
-                ierr = MatSetValue(A,row,col,value,INSERT_VALUES);CHKERRQ(ierr);
+                ierr = MatSetValue(A,row,col,value,ADD_VALUES);CHKERRQ(ierr);
             }
         }
         return 0;
     }
     PetscInt set_Mat(
+            const PetscScalar &a,
             const Mat &Asub,
             const PetscInt &nsub,
             Mat &A,
@@ -141,10 +142,14 @@ namespace PSE{
         for (PetscInt i=Isubstart; i<Isubend; i++){
             MatGetRow(Asub,i,&ncols,&cols,&vals);
             PetscInt offcols[ncols];
-            for (PetscInt j=0; j<ncols; j++) offcols[j] = cols[j]+coloffset;
+            PetscScalar avals[ncols];
+            for (PetscInt j=0; j<ncols; j++) {
+                offcols[j] = cols[j]+coloffset;
+                avals[j] = a*vals[j];
+            }
             //std::cout<<"vals [i] = "<<vals[i-Isubstart]<<std::endl;
             //printScalar(vals,ncols);
-            set_Mat(vals,i+rowoffset,ncols,offcols,A,addv);
+            set_Mat(avals,i+rowoffset,ncols,offcols,A,addv);
             
             MatRestoreRow(Asub,i,&ncols,&cols,&vals);
         }
@@ -165,6 +170,7 @@ namespace PSE{
     }
 
     PetscInt set_Mat(
+            const PetscScalar &a,
             const Mat &Dz,           
             const PetscInt &nz,     
             const PetscInt &ny,    
@@ -187,10 +193,16 @@ namespace PSE{
             if(i==zi){ // if this processor contains the correct zi plane
                 MatGetRow(Dz,i,&ncols,&cols,&vals);
                 PetscInt offcols[ncols];
-                for (PetscInt j=0; j<ncols; j++) offcols[j] = 4*ny*cols[j]+coloffset;
-                //std::cout<<"vals [i] = "<<vals[i-Isubstart]<<std::endl;
-                //printScalar(vals,ncols);
-                set_Mat(vals,i+rowoffset,ncols,offcols,A,addv);
+                PetscScalar avals[ncols];
+                for (PetscInt k=0; k<ny; k++){ // for each row in A
+                    for (PetscInt j=0; j<ncols; j++) {
+                        offcols[j] = 4*ny*cols[j]+coloffset+k;
+                        avals[j] = a*vals[j];
+                    }
+                    //std::cout<<"vals [i] = "<<vals[i-Isubstart]<<std::endl;
+                    //printScalar(vals,ncols);
+                    set_Mat(avals,i+rowoffset+k,ncols,offcols,A,addv);
+                }
 
                 MatRestoreRow(Dz,i,&ncols,&cols,&vals);
             }

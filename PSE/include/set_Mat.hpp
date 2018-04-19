@@ -53,6 +53,7 @@ namespace PSE{
      *
      */
     PetscInt set_Mat(
+            const PetscScalar &a,       ///< premultple to Asub
             const Mat &Asub,            ///< sub matrix to set into mat
             const PetscInt &nsub,       ///< nxn size of square sub matrix Asub
             Mat &A,                     ///< Matrix A to set value
@@ -73,7 +74,7 @@ namespace PSE{
             const PetscInt &ncols,          ///< ncols of array
             const PetscInt cols[],          ///< cols to set in matrix
             Mat &A,                         ///< Mat to SetValues and output in parallel
-            const InsertMode &addv=INSERT_VALUES ///< insert values or add values to matrix A
+            const InsertMode &addv=ADD_VALUES ///< insert values or add values to matrix A
             );
 
     /**
@@ -82,6 +83,7 @@ namespace PSE{
      *
      */
     PetscInt set_Mat(
+            const PetscScalar &a,       ///< premultple to Dz
             const Mat &Dz,            ///< sub matrix to set into mat in z direction
             const PetscInt &nz,       ///< nzxnz size of square sub matrix Dz
             const PetscInt &ny,          ///< length of y array
