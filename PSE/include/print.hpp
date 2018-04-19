@@ -57,10 +57,10 @@ namespace PSE
      *    (0 is default, -1 implies until user input).
      */
     void printMatView( 
-            Mat &A,             ///< Petsc Mat nxn matrix to print to screen
-            PetscInt n,         ///< size of nxn matrix to print
+            const Mat &A,             ///< Petsc Mat nxn matrix to print to screen
+            const PetscInt n,         ///< size of nxn matrix to print
             char const name[]="A viewer",  ///< name of variable to output default to 'A'
-            PetscViewerFormat format=PETSC_VIEWER_DEFAULT ///< format for viewer
+            const PetscViewerFormat format=PETSC_VIEWER_DEFAULT ///< format for viewer
             );
 }
 

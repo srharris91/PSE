@@ -133,7 +133,12 @@ int main(int argc,char **args){
         for (int i=0; i<ny; i++) y[i] = i;
         for (int i=0; i<nz; i++) z[i] = 20*i;
 
-        PSE::set_A_and_B(y,ny,z,nz,A,B,2000.,1.,1.,1.,1.);
+        PSE::Init_Mat(A,dim);
+        PSE::Init_Mat(B,dim);
+        for (PetscInt i=0; i<nz; i++){
+            PSE::set_A_and_B_zi(y,ny,z,nz,A,B,2000.,1.,1.,1.,1.,i);
+        }
+        //PSE::set_A_and_B_zi(y,ny,z,nz,A,B,2000.,1.,1.,1.,1.,1);
         PSE::printMatView(A,dim);
         PSE::printMatView(B,dim);
 

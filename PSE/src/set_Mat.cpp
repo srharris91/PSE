@@ -188,6 +188,7 @@ namespace PSE{
 
         // get ranges for each matrix
         MatGetOwnershipRange(Dz,&Isubstart,&Isubend);
+        //printMatView(Dz,nz);
 
         for (PetscInt i=Isubstart; i<Isubend; i++){
             if(i==zi){ // if this processor contains the correct zi plane
@@ -197,11 +198,12 @@ namespace PSE{
                 for (PetscInt k=0; k<ny; k++){ // for each row in A
                     for (PetscInt j=0; j<ncols; j++) {
                         offcols[j] = 4*ny*cols[j]+coloffset+k;
+                        //std::cout<<"cols[j] = "<<cols[j]<<std::endl;
                         avals[j] = a*vals[j];
                     }
                     //std::cout<<"vals [i] = "<<vals[i-Isubstart]<<std::endl;
                     //printScalar(vals,ncols);
-                    set_Mat(avals,i+rowoffset+k,ncols,offcols,A,addv);
+                    set_Mat(avals,rowoffset+k,ncols,offcols,A,addv);
                 }
 
                 MatRestoreRow(Dz,i,&ncols,&cols,&vals);
