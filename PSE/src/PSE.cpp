@@ -124,14 +124,14 @@ int main(int argc,char **args){
         ierr = MatDestroy(&Dyyp);CHKERRQ(ierr);
     }
     // set A and B matrices
-    if(1){
+    if(0){
         Mat A,B;
         PetscErrorCode ierr;
         PetscInt ny=10,nz=6;
         PetscInt dim=ny*nz*4;
         PetscScalar y[ny],z[nz];
-        for (int i=0; i<ny; i++) y[i] = i;
-        for (int i=0; i<nz; i++) z[i] = 20*i;
+        for (PetscInt i=0; i<ny; i++) y[i] = i;
+        for (PetscInt i=0; i<nz; i++) z[i] = 20*i;
 
         PSE::Init_Mat(A,dim);
         PSE::Init_Mat(B,dim);
@@ -144,6 +144,32 @@ int main(int argc,char **args){
 
         ierr = MatDestroy(&A);CHKERRQ(ierr);
         ierr = MatDestroy(&B);CHKERRQ(ierr);
+    }
+    if(1){
+        // init
+        Mat A;
+        Vec b,q;
+        PetscInt ny=10,nz=6;
+        PetscScalar y[ny],z[nz];
+        PetscScalar pfive=0.5;
+        PetscScalar hx=0.25;
+        PetscInt dim=ny*nz*4;
+        for (int i=0; i<ny; i++) y[i] = i;
+        for (int i=0; i<nz; i++) z[i] = 20*i;
+        // set A,b with q=0.5
+        PSE::Init_Vec(q,dim);
+        ierr = VecSet(q,pfive);CHKERRQ(ierr);
+        PSE::set_Vec(q); // assemble
+
+        PSE::set_A_and_b(hx,y,ny,z,nz,q,A,b,2000.,1.,1.,1.,1.);
+        // view A,B
+        PSE::printMatView(A,dim);
+        PSE::printVecView(b,dim);
+        PSE::printVecView(q,dim);
+        // free memory
+        ierr = MatDestroy(&A);CHKERRQ(ierr);
+        ierr = VecDestroy(&b);CHKERRQ(ierr);
+        ierr = VecDestroy(&q);CHKERRQ(ierr);
     }
 
     ierr = PetscFinalize();
