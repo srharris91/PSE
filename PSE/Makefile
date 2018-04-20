@@ -25,7 +25,9 @@ exPSE: ${OBJFILES}
 	-@${RM} ${OBJFILES}
 
 runPSE:
-	${MPIEXEC} -n ${NP} ./PSE -pc_type none -ksp_gmres_cgs_refinement_type refine_always -draw_pause -1 
+	${MPIEXEC} -n ${NP} ./PSE -ksp_converged_reason -ksp_monitor_true_residual -pc_type none -ksp_type gmres -ksp_gmres_cgs_refinement_type refine_always -draw_pause -1 
+	-@#-ksp_type cg
+	-@#-pc_type none
 	-@#-on_error_attach_debugger
 	-@#${MPIEXEC} -n ${NP} ./PSE -print_x6 -pc_type none -ksp_monitor_short -ksp_gmres_cgs_refinement_type refine_always #> PSE_1.tmp 2>&1;
 	-@# ${RM} -f PSE_1.tmp

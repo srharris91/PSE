@@ -20,6 +20,13 @@ namespace PSE
             const PetscScalar &alpha,///< alpha
             const PetscScalar &m,   ///< m for omega
             const PetscScalar &omega,///< omega value
+            const Mat &Dy,           ///< Dy matrix
+            const Mat &Dyy,           ///< Dyy matrix
+            const Mat &Dz,           ///< Dz matrix
+            const Mat &Dzz,           ///< Dzz matrix
+            const Mat &I,           ///< I identity matrix
+            const Mat &U,           ///< U base flow matrix
+            const Mat &Uy,           ///< Uy base flow matrix
             const PetscInt &zi=0,     ///< zi plane of matrix
             const PetscInt &order=4,  ///< order of accuracy of derivatives in finite difference
             const PetscBool &reduce_wall_order=PETSC_TRUE ///< reduce order of derivatives at the wall if true

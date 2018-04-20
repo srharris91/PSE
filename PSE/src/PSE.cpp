@@ -123,6 +123,7 @@ int main(int argc,char **args){
         ierr = MatDestroy(&Dy);CHKERRQ(ierr);
         ierr = MatDestroy(&Dyyp);CHKERRQ(ierr);
     }
+    /*
     // set A and B matrices
     if(0){
         Mat A,B;
@@ -145,11 +146,12 @@ int main(int argc,char **args){
         ierr = MatDestroy(&A);CHKERRQ(ierr);
         ierr = MatDestroy(&B);CHKERRQ(ierr);
     }
-    if(1){
+    */
+    if(0){
         // init
         Mat A;
-        Vec b,q;
-        PetscInt ny=10,nz=6;
+        Vec b,q,qp1;
+        PetscInt ny=100,nz=60;
         PetscScalar y[ny],z[nz];
         PetscScalar pfive=0.5;
         PetscScalar hx=0.25;
@@ -158,18 +160,68 @@ int main(int argc,char **args){
         for (int i=0; i<nz; i++) z[i] = 20*i;
         // set A,b with q=0.5
         PSE::Init_Vec(q,dim);
+        //PSE::Init_Vec(qp1,dim);
         ierr = VecSet(q,pfive);CHKERRQ(ierr);
         PSE::set_Vec(q); // assemble
-
         PSE::set_A_and_b(hx,y,ny,z,nz,q,A,b,2000.,1.,1.,1.,1.);
         // view A,B
         PSE::printMatView(A,dim);
         PSE::printVecView(b,dim);
         PSE::printVecView(q,dim);
+        // solve Ax=b
+        PSE::Ax_b(A,qp1,b,dim);
+        PSE::printVecView(qp1,dim);
         // free memory
         ierr = MatDestroy(&A);CHKERRQ(ierr);
         ierr = VecDestroy(&b);CHKERRQ(ierr);
         ierr = VecDestroy(&q);CHKERRQ(ierr);
+    }
+    if(1){ // compare against matmult and Ax_b
+        // init
+        Mat A;
+        Vec b,q,qp1,qexact,bexact;
+        PetscScalar none=-1.0;
+        PetscReal norm;
+        PetscInt ny=10,nz=6;
+        PetscScalar y[ny],z[nz];
+        PetscScalar pfive=0.5;
+        PetscScalar hx=0.25;
+        PetscInt dim=ny*nz*4;
+        for (PetscInt i=-ny/2; i<ny/2; i++) y[i] = ((PetscScalar)i) / ((PetscScalar) ny);
+        for (PetscInt i=0; i<nz; i++) z[i] = ((PetscScalar)i) / ((PetscScalar) nz);
+        // set A,b with q=0.5
+        PSE::Init_Vec(q,dim);
+        //PSE::Init_Vec(qp1,dim);
+        ierr = VecSet(q,pfive);CHKERRQ(ierr);
+        PSE::set_Vec(q); // assemble
+        PSE::set_A_and_b(hx,y,ny,z,nz,q,A,b,2000.,1.,1.,1.,1.);
+        // set BCs
+        PSE::set_BCs(A,b,ny,nz);
+        // set exact q and b
+        PSE::Init_Vec(qexact,dim);
+        PSE::Init_Vec(bexact,dim);
+        ierr = VecSet(qexact,pfive);CHKERRQ(ierr);
+        PSE::set_Vec(qexact); // assemble
+        MatMult(A,qexact,bexact);
+        PSE::set_Vec(bexact);
+        // view A,B
+        PSE::printMatView(A,dim);
+        //PSE::printVecView(b,dim);
+        //PSE::printVecView(q,dim);
+        // solve Ax=b
+        PSE::Ax_b(A,qp1,bexact,dim);
+        PSE::printVecView(qp1,dim);
+        PSE::printVecView(qexact,dim);
+        // check error
+        ierr = VecAXPY(qp1,none,qexact);CHKERRQ(ierr);
+        ierr = VecNorm(qp1,NORM_2,&norm);CHKERRQ(ierr);
+        ierr = PetscPrintf(PETSC_COMM_WORLD,"Norm of error %g \n\n",(double)norm);CHKERRQ(ierr);
+        // free memory
+        ierr = MatDestroy(&A);CHKERRQ(ierr);
+        ierr = VecDestroy(&b);CHKERRQ(ierr);
+        ierr = VecDestroy(&bexact);CHKERRQ(ierr);
+        ierr = VecDestroy(&q);CHKERRQ(ierr);
+        ierr = VecDestroy(&qexact);CHKERRQ(ierr);
     }
 
     ierr = PetscFinalize();

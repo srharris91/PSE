@@ -43,8 +43,8 @@ namespace PSE
         ierr = KSPSolve(ksp,b,x);CHKERRQ(ierr);
 
         // Free work space.  All PETSc objects should be destroyed when they
-        //ierr = VecAssemblyBegin(x); CHKERRQ(ierr);
-        //ierr = VecAssemblyEnd(x); CHKERRQ(ierr);
+        ierr = VecAssemblyBegin(x); CHKERRQ(ierr);
+        ierr = VecAssemblyEnd(x); CHKERRQ(ierr);
         // are no longer needed.
         ierr = KSPDestroy(&ksp);CHKERRQ(ierr);
         //ierr = VecDestroy(&x);CHKERRQ(ierr);
@@ -64,6 +64,7 @@ namespace PSE
         
         // Create parallel vectors x from b
         Init_Vec(x,n);
+        //ierr = VecDuplicate(b,&x);CHKERRQ(ierr);
         //ierr = VecDuplicate(x,&b);CHKERRQ(ierr);
 
         // Create the linear solver and set various options
@@ -79,11 +80,16 @@ namespace PSE
         // Solve the linear system
         ierr = KSPSolve(ksp,b,x);CHKERRQ(ierr);
 
+        // output iterations
+        PetscInt its;
+        ierr = KSPGetIterationNumber(ksp,&its);CHKERRQ(ierr);
+        ierr = PetscPrintf(PETSC_COMM_WORLD,"ksp iterations %D\n",its);CHKERRQ(ierr);
         // Free work space.  All PETSc objects should be destroyed when they
-        //ierr = VecAssemblyBegin(x); CHKERRQ(ierr);
-        //ierr = VecAssemblyEnd(x); CHKERRQ(ierr);
+        ierr = VecAssemblyBegin(x); CHKERRQ(ierr);
+        ierr = VecAssemblyEnd(x); CHKERRQ(ierr);
         // are no longer needed.
         ierr = KSPDestroy(&ksp);CHKERRQ(ierr);
+        PetscPrintf(PETSC_COMM_WORLD,"KSP Solved\n");
         //ierr = VecDestroy(&x);CHKERRQ(ierr);
         //ierr = VecDestroy(&b);CHKERRQ(ierr); 
         //ierr = MatDestroy(&A);CHKERRQ(ierr);

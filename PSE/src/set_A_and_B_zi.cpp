@@ -26,26 +26,33 @@ namespace PSE
             const PetscScalar &alpha,
             const PetscScalar &m,
             const PetscScalar &omega,
+            const Mat &Dy,
+            const Mat &Dyy,
+            const Mat &Dz,
+            const Mat &Dzz,
+            const Mat &I,
+            const Mat &U,
+            const Mat &Uy,
             const PetscInt &zi,
             const PetscInt &order,
             const PetscBool &reduce_wall_order
             ){
-        PetscErrorCode ierr;
+        //PetscErrorCode ierr;
         PetscInt dim=ny*nz*4; // dimension of A and B square matrices
         PetscScalar i = 1.*PETSC_i;
         // initialize D operators
-        Mat Dy,Dyy,Dz,Dzz,I,U,Uy;
+        //Mat Dy,Dyy,Dz,Dzz,I,U,Uy;
         // set I
-        Init_Mat(I,ny);
-        set_Mat(1.,ny,I); // set diag of 1
-        set_Mat(I); // assemble
+        //Init_Mat(I,ny);
+        //set_Mat(1.,ny,I); // set diag of 1
+        //set_Mat(I); // assemble
         // set U,Uy
-        base_flow(U,Uy,y,ny);
+        //base_flow(U,Uy,y,ny);
         // set D operators
-        set_D(y,ny,Dy,order,1);
-        set_D(z,nz,Dz,order,1,PETSC_TRUE);
-        set_D(z,nz,Dzz,order,2,PETSC_TRUE);
-        set_D(y,ny,Dyy,order,2);
+        //set_D(y,ny,Dy,order,1);
+        //set_D(z,nz,Dz,order,1,PETSC_TRUE);
+        //set_D(z,nz,Dzz,order,2,PETSC_TRUE);
+        //set_D(y,ny,Dyy,order,2);
         
         //Init_Mat(A,dim);
         //Init_Mat(B,dim);
@@ -136,13 +143,16 @@ namespace PSE
         //set_Mat(1.,Dzz,nz,ny,0,B,dim);
 
         // assemble
-        set_Mat(A);
-        set_Mat(B);
+        //set_Mat(A);
+        //set_Mat(B);
         // destroy
-        ierr = MatDestroy(&Dy);CHKERRQ(ierr);
-        ierr = MatDestroy(&Dyy);CHKERRQ(ierr);
-        ierr = MatDestroy(&Dz);CHKERRQ(ierr);
-        ierr = MatDestroy(&Dzz);CHKERRQ(ierr);
+        //ierr = MatDestroy(&Dy);CHKERRQ(ierr);
+        //ierr = MatDestroy(&Dyy);CHKERRQ(ierr);
+        //ierr = MatDestroy(&Dz);CHKERRQ(ierr);
+        //ierr = MatDestroy(&Dzz);CHKERRQ(ierr);
+        //ierr = MatDestroy(&I);CHKERRQ(ierr);
+        //ierr = MatDestroy(&U);CHKERRQ(ierr);
+        //ierr = MatDestroy(&Uy);CHKERRQ(ierr);
 
         return 0;
     }
