@@ -123,62 +123,9 @@ int main(int argc,char **args){
         ierr = MatDestroy(&Dy);CHKERRQ(ierr);
         ierr = MatDestroy(&Dyyp);CHKERRQ(ierr);
     }
-    /*
-    // set A and B matrices
-    if(0){
-        Mat A,B;
-        PetscErrorCode ierr;
-        PetscInt ny=10,nz=6;
-        PetscInt dim=ny*nz*4;
-        PetscScalar y[ny],z[nz];
-        for (PetscInt i=0; i<ny; i++) y[i] = i;
-        for (PetscInt i=0; i<nz; i++) z[i] = 20*i;
-
-        PSE::Init_Mat(A,dim);
-        PSE::Init_Mat(B,dim);
-        for (PetscInt i=0; i<nz; i++){
-            PSE::set_A_and_B_zi(y,ny,z,nz,A,B,2000.,1.,1.,1.,1.,i);
-        }
-        //PSE::set_A_and_B_zi(y,ny,z,nz,A,B,2000.,1.,1.,1.,1.,1);
-        PSE::printMatView(A,dim);
-        PSE::printMatView(B,dim);
-
-        ierr = MatDestroy(&A);CHKERRQ(ierr);
-        ierr = MatDestroy(&B);CHKERRQ(ierr);
-    }
-    */
-    if(0){
-        // init
-        Mat A;
-        Vec b,q,qp1;
-        PetscInt ny=100,nz=60;
-        PetscScalar y[ny],z[nz];
-        PetscScalar pfive=0.5;
-        PetscScalar hx=0.25;
-        PetscInt dim=ny*nz*4;
-        for (int i=0; i<ny; i++) y[i] = i;
-        for (int i=0; i<nz; i++) z[i] = 20*i;
-        // set A,b with q=0.5
-        PSE::Init_Vec(q,dim);
-        //PSE::Init_Vec(qp1,dim);
-        ierr = VecSet(q,pfive);CHKERRQ(ierr);
-        PSE::set_Vec(q); // assemble
-        PSE::set_A_and_b(hx,y,ny,z,nz,q,A,b,2000.,1.,1.,1.,1.);
-        // view A,B
-        PSE::printMatView(A,dim);
-        PSE::printVecView(b,dim);
-        PSE::printVecView(q,dim);
-        // solve Ax=b
-        PSE::Ax_b(A,qp1,b,dim);
-        PSE::printVecView(qp1,dim);
-        // free memory
-        ierr = MatDestroy(&A);CHKERRQ(ierr);
-        ierr = VecDestroy(&b);CHKERRQ(ierr);
-        ierr = VecDestroy(&q);CHKERRQ(ierr);
-    }
     if(1){ // compare against matmult and Ax_b
         // init
-        Mat A;
+        Mat A,B;
         Vec b,q,qp1,qexact,bexact;
         PetscScalar none=-1.0;
         PetscReal norm;
@@ -194,7 +141,9 @@ int main(int argc,char **args){
         //PSE::Init_Vec(qp1,dim);
         ierr = VecSet(q,pfive);CHKERRQ(ierr);
         PSE::set_Vec(q); // assemble
-        PSE::set_A_and_b(hx,y,ny,z,nz,q,A,b,2000.,1.,1.,1.,1.);
+        PSE::set_A_and_B(hx,y,ny,z,nz,A,B,2000.,1.,1.,1.,1.);
+        PSE::Init_Vec(b,dim);
+        PSE::set_b(q,B,b);
         // set BCs
         PSE::set_BCs(A,b,ny,nz);
         // set exact q and b

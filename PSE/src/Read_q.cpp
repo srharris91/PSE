@@ -18,10 +18,10 @@ namespace PSE
         if(rank==0){
             FILE *latfile;
             latfile=fopen(buff,"r");
-            fread(read_scalar,sizeof(double),n,latfile);
+            fread(read_scalar,sizeof(double),2*n,latfile);
             fclose(latfile);
             ierr = PetscPrintf(PETSC_COMM_WORLD,"\n\nReading in vector\n");CHKERRQ(ierr);
-            for (int i=0; i<n; i++){
+            for (int i=0; i<n; i++){// 2*n because of complex variables
                 ierr = PetscPrintf(PETSC_COMM_WORLD,"  x[%i] = %g + %g i\n",
                         i,
                         (double)PetscRealPart(read_scalar[i]),

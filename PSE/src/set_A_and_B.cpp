@@ -2,7 +2,7 @@
 #include <string>
 #include <cmath>
 #include "set_A_and_B_zi.hpp"
-#include "set_A_and_b.hpp"
+#include "set_A_and_B.hpp"
 #include "set_D.hpp"
 #include "get_D_Coeffs.hpp"
 #include "Init_Vec.hpp"
@@ -15,15 +15,14 @@
 
 namespace PSE
 {
-    PetscInt set_A_and_b(
+    PetscInt set_A_and_B(
             const PetscScalar &hx,
             const PetscScalar y[],
             const PetscInt &ny,
             const PetscScalar z[],
             const PetscInt &nz,
-            const Vec &qn,
             Mat &A,         
-            Vec &b,         
+            Mat &B,         
             const PetscScalar &Re,
             const PetscScalar &rho,
             const PetscScalar &alpha,
@@ -47,13 +46,13 @@ namespace PSE
         set_D(z,nz,Dzz,order,2,PETSC_TRUE);
         set_D(y,ny,Dyy,order,2);
 
-        Mat B;
+        //Vec b;
         PetscErrorCode ierr;
         PetscInt dim=ny*nz*4;
 
         Init_Mat(A,dim);
         Init_Mat(B,dim);
-        Init_Vec(b,dim);
+        //Init_Vec(b,dim);
         for (PetscInt i=0; i<nz; i++){
             set_A_and_B_zi(y,ny,z,nz,A,B,Re,rho,alpha,m,omega,Dy,Dyy,Dz,Dzz,I,U,Uy,i,order,reduce_wall_order);
         }
@@ -62,13 +61,12 @@ namespace PSE
         set_Mat(B);
 
         // set A and b for output
-        //MatAXPY(1./hx,B,A); // A<- 1./hx * B + A
-        MatAXPY(A,1./hx,B,SAME_NONZERO_PATTERN); // A+= 1./hx * B
+        MatAXPY(A,1./hx,B,DIFFERENT_NONZERO_PATTERN); // A+= 1./hx * B
         set_Mat(A);
         MatScale(B,1./hx);  // B*=1./hx
-        MatMult(B,qn,b);    // b=B*qn
+        //MatMult(B,qn,b);    // b=B*qn
 
-        ierr = MatDestroy(&B);CHKERRQ(ierr);
+        //ierr = MatDestroy(&B);CHKERRQ(ierr);
         ierr = MatDestroy(&Dy);CHKERRQ(ierr);
         ierr = MatDestroy(&Dyy);CHKERRQ(ierr);
         ierr = MatDestroy(&Dz);CHKERRQ(ierr);

@@ -46,7 +46,8 @@
 #include "set_Mat.hpp"
 #include "set_Vec.hpp"
 #include "set_A_and_B_zi.hpp"
-#include "set_A_and_b.hpp"
+#include "set_A_and_B.hpp"
 #include "set_BCs.hpp"
+#include "set_b.hpp"
 
 #endif

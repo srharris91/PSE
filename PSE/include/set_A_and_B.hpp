@@ -8,15 +8,14 @@ namespace PSE
      * \brief set A and B matrix for PSE equations
      * \return 0 if successful
      */
-    PetscInt set_A_and_b(
+    PetscInt set_A_and_B(
             const PetscScalar &hx,  ///< hx step size
             const PetscScalar y[],  ///< y array
             const PetscInt &ny,     ///< size of y array
             const PetscScalar z[],  ///< z array
             const PetscInt &nz,     ///< size of z array
-            const Vec &qn,          ///< old q value
             Mat &A,                 ///< A matrix (uninitialized)
-            Vec &b,                 ///< b Vec (uninitialized)
+            Mat &B,                 ///< B matrix (uninitialized)
             const PetscScalar &Re,  ///< Reynolds number
             const PetscScalar &rho,  ///< rho density
             const PetscScalar &alpha,///< alpha
