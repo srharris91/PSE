@@ -4,4 +4,4 @@
 	branch = maint
 [submodule "PSE/Submodules/cmake-modules"]
 	path = PSE/Submodules/cmake-modules
-	url = git@github.com:jedbrown/cmake-modules.git
+	url = https://github.com/jedbrown/cmake-modules.git
