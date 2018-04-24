@@ -3,8 +3,8 @@
 namespace PSE
 {
     PetscInt set_b(
+            const Mat &B,
             const Vec &qn,
-            Mat &B,
             Vec &b         
             ){
         // set A and b for output

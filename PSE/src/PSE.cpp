@@ -73,7 +73,7 @@ int main(int argc,char **args){
         ierr = VecDestroy(&x2);CHKERRQ(ierr);
     }
     // test Read_q
-    if (1){
+    if (0){
         PetscInt n=6;
         Vec q;
         PSE::Init_Vec(q,n);
@@ -123,7 +123,7 @@ int main(int argc,char **args){
         ierr = MatDestroy(&Dy);CHKERRQ(ierr);
         ierr = MatDestroy(&Dyyp);CHKERRQ(ierr);
     }
-    if(1){ // compare against matmult and Ax_b
+    if(0){ // compare against matmult and Ax_b
         // init
         Mat A,B;
         Vec b,q,qp1,qexact,bexact;
@@ -143,7 +143,59 @@ int main(int argc,char **args){
         PSE::set_Vec(q); // assemble
         PSE::set_A_and_B(hx,y,ny,z,nz,A,B,2000.,1.,1.,1.,1.);
         PSE::Init_Vec(b,dim);
-        PSE::set_b(q,B,b);
+        PSE::set_b(B,q,b);
+        // set BCs
+        PSE::set_BCs(A,b,ny,nz);
+        // set exact q and b
+        PSE::Init_Vec(qexact,dim);
+        PSE::Init_Vec(bexact,dim);
+        ierr = VecSet(qexact,pfive);CHKERRQ(ierr);
+        PSE::set_Vec(qexact); // assemble
+        MatMult(A,qexact,bexact);
+        PSE::set_Vec(bexact);
+        // view A,B
+        PSE::printMatView(A);
+        //PSE::printMatASCII(A,"printMatASCII_dense.txt",PETSC_VIEWER_ASCII_DENSE);
+        //PSE::printMatASCII(A);
+        // solve Ax=b
+        PSE::Ax_b(A,qp1,bexact,dim);
+        PSE::printVecView(qp1);
+        //PSE::printVecASCII(qp1,"printVecqp1.txt");
+        //PSE::printVecASCII(qp1,"printVecqp1_dense.txt",PETSC_VIEWER_ASCII_DENSE);
+        PSE::printVecView(qexact);
+        // check error
+        ierr = VecAXPY(qp1,none,qexact);CHKERRQ(ierr);
+        ierr = VecNorm(qp1,NORM_2,&norm);CHKERRQ(ierr);
+        ierr = PetscPrintf(PETSC_COMM_WORLD,"Norm of error %g \n\n",(double)norm);CHKERRQ(ierr);
+        // free memory
+        ierr = MatDestroy(&A);CHKERRQ(ierr);
+        ierr = VecDestroy(&b);CHKERRQ(ierr);
+        ierr = VecDestroy(&bexact);CHKERRQ(ierr);
+        ierr = VecDestroy(&q);CHKERRQ(ierr);
+        ierr = VecDestroy(&qexact);CHKERRQ(ierr);
+    }
+    if(1){ // compare against matmult and Ax_b
+        // init
+        Mat A,B;
+        Vec b,q,qp1,qexact,bexact;
+        PetscScalar none=-1.0;
+        PetscReal norm;
+        PetscInt ny=100,nz=6;
+        PetscScalar y[ny],z[nz];
+        PetscScalar pfive=0.5;
+        PetscScalar hx=0.25;
+        PetscInt dim=ny*nz*4;
+        for (PetscInt i=-ny/2; i<ny/2; i++) y[i] = ((PetscScalar)i) / ((PetscScalar) ny);
+        for (PetscInt i=0; i<nz; i++) z[i] = ((PetscScalar)i) / ((PetscScalar) nz);
+        // set A,b with q=0.5
+        PSE::Init_Vec(q,dim);
+        PSE::Init_Vec(qp1,dim);
+        //ierr = VecSet(q,pfive);CHKERRQ(ierr);
+        //PSE::set_Vec(q); // assemble
+        PSE::Read_q(q,dim);
+        PSE::set_A_and_B(hx,y,ny,z,nz,A,B,2000.,1.,1.,1.,1.);
+        PSE::Init_Vec(b,dim);
+        PSE::set_b(B,q,b);
         // set BCs
         PSE::set_BCs(A,b,ny,nz);
         // set exact q and b
