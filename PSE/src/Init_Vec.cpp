@@ -1,6 +1,5 @@
 #include "Init_Vec.hpp"
 #include "print.hpp"
-#include <iostream>
 namespace PSE{
     int Init_Vec(
             Vec &x, 

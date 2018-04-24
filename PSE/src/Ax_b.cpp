@@ -4,7 +4,6 @@
 #include "print.hpp"
 #include "set_Mat.hpp"
 #include "set_Vec.hpp"
-#include <iostream>
 
 namespace PSE
 {

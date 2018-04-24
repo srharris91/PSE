@@ -1,11 +1,10 @@
 #include "print.hpp"
-#include <iostream>
 namespace PSE
 {
     PetscErrorCode printScalar( const PetscScalar x[], const PetscInt n,char const name[],PetscViewer viewer){
         PetscErrorCode ierr;
         if (n==1){
-            ierr = PetscPrintf(PETSC_COMM_WORLD,"  %s = %g \n",name,(double)PetscRealPart(x[0]));CHKERRQ(ierr);
+            ierr = PetscPrintf(PETSC_COMM_WORLD,"  %s = %g + %g i\n",name,(double)PetscRealPart(x[0]),PetscImaginaryPart(x[0]));CHKERRQ(ierr);
         }
         else{
             PetscScalarView(n,x,viewer);
@@ -18,7 +17,6 @@ namespace PSE
         ierr = VecGetArray(x,&xa);CHKERRQ(ierr);
         for(PetscInt i=0; i<n; i++) {
             ierr = PetscPrintf(PETSC_COMM_WORLD,"  %s[%D] = %g + %g i\n",name,i,(double)PetscRealPart(xa[i]),(double)PetscImaginaryPart(xa[i]));CHKERRQ(ierr);
-            //std::cout<<"     xa["<<i<<"]= "<<xa[i]<<std::endl;
         }
 
         ierr = VecRestoreArray(x,&xa);CHKERRQ(ierr);
@@ -37,17 +35,17 @@ namespace PSE
         }
         return ierr;
     }
-    void printVecView( Vec &x, PetscInt n,char const name[],PetscViewerFormat format){
+    void printVecView( Vec &x, char const name[],PetscViewerFormat format){
         PetscViewer     viewer;
         PetscViewerDrawOpen(PETSC_COMM_WORLD, NULL,NULL, PETSC_DECIDE,PETSC_DECIDE,PETSC_DECIDE,PETSC_DECIDE,&viewer);
         PetscObjectSetName((PetscObject)viewer,name);
         PetscViewerPushFormat(viewer,format);
 
         VecView(x,viewer);
+        PetscViewerDestroy(&viewer);
     }
     void printMatView( 
             const Mat &A,
-            const PetscInt n,
             char const name[],
             const PetscViewerFormat format
             ){
@@ -55,7 +53,29 @@ namespace PSE
         PetscViewerDrawOpen(PETSC_COMM_WORLD, NULL,NULL, PETSC_DECIDE,PETSC_DECIDE,PETSC_DECIDE,PETSC_DECIDE,&viewer);
         PetscObjectSetName((PetscObject)viewer,name);
         PetscViewerPushFormat(viewer,format);
-
         MatView(A,viewer);
+        PetscViewerDestroy(&viewer);
+    }
+    void printMatASCII( 
+            const Mat &A,
+            char const name[],
+            const PetscViewerFormat format
+            ){
+        PetscViewer     viewer;
+        PetscViewerASCIIOpen(PETSC_COMM_WORLD,name,&viewer);
+        PetscViewerPushFormat(viewer,format);
+        MatView(A,viewer);
+        PetscViewerDestroy(&viewer);
+    }
+    void printVecASCII( 
+            const Vec &b,
+            char const name[],
+            const PetscViewerFormat format
+            ){
+        PetscViewer     viewer;
+        PetscViewerASCIIOpen(PETSC_COMM_WORLD,name,&viewer);
+        PetscViewerPushFormat(viewer,format);
+        VecView(b,viewer);
+        PetscViewerDestroy(&viewer);
     }
 }

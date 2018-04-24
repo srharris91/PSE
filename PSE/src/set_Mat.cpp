@@ -1,7 +1,6 @@
 #include "set_Mat.hpp"
 #include "Init_Mat.hpp"
 #include "print.hpp"
-#include <iostream>
 
 namespace PSE{
     PetscInt set_Mat(
@@ -24,12 +23,8 @@ namespace PSE{
         // Set matrix elements (in parallel)
 
         for (Ii=Istart; Ii<Iend; Ii++){ // in parallel all of the values
-            //std::cout<<"setting i="<<Ii<<" n="<<n<<" col[:] = ";
-            //for(i=0;i<n;i++) std::cout<<col[i]<<", ";
-            //std::cout<<std::endl;
             ierr = MatSetValues(A,1,&Ii,n,col,Ain[Ii],ADD_VALUES);CHKERRQ(ierr);
         }
-        //std::cout<<"done setting i="<<Ii<<std::endl;
 
 
         // Assemble matrix, using the 2-step process:
@@ -147,7 +142,6 @@ namespace PSE{
                 offcols[j] = cols[j]+coloffset;
                 avals[j] = a*vals[j];
             }
-            //std::cout<<"vals [i] = "<<vals[i-Isubstart]<<std::endl;
             //printScalar(vals,ncols);
             set_Mat(avals,i+rowoffset,ncols,offcols,A,addv);
             
@@ -198,10 +192,8 @@ namespace PSE{
                 for (PetscInt k=0; k<ny; k++){ // for each row in A
                     for (PetscInt j=0; j<ncols; j++) {
                         offcols[j] = 4*ny*cols[j]+coloffset+k;
-                        //std::cout<<"cols[j] = "<<cols[j]<<std::endl;
                         avals[j] = a*vals[j];
                     }
-                    //std::cout<<"vals [i] = "<<vals[i-Isubstart]<<std::endl;
                     //printScalar(vals,ncols);
                     set_Mat(avals,rowoffset+k,ncols,offcols,A,addv);
                 }

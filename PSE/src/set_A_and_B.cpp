@@ -11,7 +11,6 @@
 #include "set_Mat.hpp"
 #include "set_Vec.hpp"
 #include "base_flow.hpp"
-#include <iostream>
 
 namespace PSE
 {

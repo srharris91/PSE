@@ -42,7 +42,6 @@ namespace PSE
      */
     void printVecView( 
             Vec &x,             ///< PetscScalar array to print to screen
-            PetscInt n,         ///< size of scalar array to print
             char const name[]="x viewer",  ///< name of variable to output default to 'x'
             PetscViewerFormat format=PETSC_VIEWER_DEFAULT ///< format for viewer
             );
@@ -58,8 +57,31 @@ namespace PSE
      */
     void printMatView( 
             const Mat &A,             ///< Petsc Mat nxn matrix to print to screen
-            const PetscInt n,         ///< size of nxn matrix to print
             char const name[]="A viewer",  ///< name of variable to output default to 'A'
+            const PetscViewerFormat format=PETSC_VIEWER_DEFAULT ///< format for viewer
+            );
+    /** \brief view Petsc Mat variable to ASCII file
+     *    - Helpful runtime option:
+     *
+     *    -draw_pause <pause> : sets time (in seconds) that the
+     *    program pauses after PetscDrawPause() has been called
+     *    (0 is default, -1 implies until user input).
+     */
+    void printMatASCII( 
+            const Mat &A,             ///< Petsc Mat nxn matrix to print to screen
+            char const name[]="printMatASCII.txt", ///< filename to write to
+            const PetscViewerFormat format=PETSC_VIEWER_DEFAULT ///< format for viewer
+            );
+    /** \brief view Petsc Vec variable to ASCII file
+     *    - Helpful runtime option:
+     *
+     *    -draw_pause <pause> : sets time (in seconds) that the
+     *    program pauses after PetscDrawPause() has been called
+     *    (0 is default, -1 implies until user input).
+     */
+    void printVecASCII( 
+            const Vec &b,             ///< Petsc Vec 1xn vector to print to screen
+            char const name[]="printVecASCII.txt", ///< filename to write to
             const PetscViewerFormat format=PETSC_VIEWER_DEFAULT ///< format for viewer
             );
 }

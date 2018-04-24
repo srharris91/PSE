@@ -58,12 +58,12 @@ int main(int argc,char **args){
         // solve Ax=b problem
         ierr = PSE::Ax_b(Atest2,x,btest,n); CHKERRQ(ierr);
         // output solutions
-        PSE::printVecView(x,n);
+        PSE::printVecView(x);
 
         // solve Ax=b problem
         PSE::Init_Vec(x2,n);
         ierr = PSE::Ax_b(Atest2,x2,btest,n); CHKERRQ(ierr);
-        PSE::printVecView(x2,n,"x2");
+        PSE::printVecView(x2,"x2");
 
         // finalize
         for (int i=0; i<n; i++) delete[] Atest2[i];
@@ -73,12 +73,13 @@ int main(int argc,char **args){
         ierr = VecDestroy(&x2);CHKERRQ(ierr);
     }
     // test Read_q
-    if (0){
+    if (1){
         PetscInt n=6;
         Vec q;
         PSE::Init_Vec(q,n);
         PSE::Read_q(q,n);
-        PSE::printVecView(q,n,"After reading vector = ");
+        PSE::printVecView(q,"After reading vector = ");
+        //PSE::printVecASCII(q,"afterreadingvector.txt");
         ierr = VecDestroy(&q);CHKERRQ(ierr);
     }
     // test get_D_Coeffs
@@ -94,14 +95,13 @@ int main(int argc,char **args){
         Vec sVec;
         PSE::Init_Vec(sVec,n);
         PSE::set_Vec(s,n,sVec);
-        PSE::printVecView(sVec,n);
-        //PetscScalar output[n];
+        PSE::printVecView(sVec);
 
         PSE::Init_Vec(x,n);
 
 
         PSE::get_D_Coeffs(s,n,x);
-        PSE::printVecView(x,n,"after");
+        PSE::printVecView(x,"after");
 
         ierr = VecDestroy(&x);CHKERRQ(ierr);
         delete[] s;
@@ -114,10 +114,10 @@ int main(int argc,char **args){
         for (int i=0; i<n; i++) y[i] = i;
         // set periodic
         PSE::set_D(y,n,Dyyp,4,1,PETSC_FALSE);
-        PSE::printMatView(Dyyp,n);
+        PSE::printMatView(Dyyp);
         // set non-periodic
         PSE::set_D(y,n,Dy,4,2);
-        PSE::printMatView(Dy,n);
+        PSE::printMatView(Dy);
 
 
         ierr = MatDestroy(&Dy);CHKERRQ(ierr);
@@ -154,13 +154,15 @@ int main(int argc,char **args){
         MatMult(A,qexact,bexact);
         PSE::set_Vec(bexact);
         // view A,B
-        PSE::printMatView(A,dim);
-        //PSE::printVecView(b,dim);
-        //PSE::printVecView(q,dim);
+        PSE::printMatView(A);
+        //PSE::printMatASCII(A,"printMatASCII_dense.txt",PETSC_VIEWER_ASCII_DENSE);
+        //PSE::printMatASCII(A);
         // solve Ax=b
         PSE::Ax_b(A,qp1,bexact,dim);
-        PSE::printVecView(qp1,dim);
-        PSE::printVecView(qexact,dim);
+        PSE::printVecView(qp1);
+        //PSE::printVecASCII(qp1,"printVecqp1.txt");
+        //PSE::printVecASCII(qp1,"printVecqp1_dense.txt",PETSC_VIEWER_ASCII_DENSE);
+        PSE::printVecView(qexact);
         // check error
         ierr = VecAXPY(qp1,none,qexact);CHKERRQ(ierr);
         ierr = VecNorm(qp1,NORM_2,&norm);CHKERRQ(ierr);

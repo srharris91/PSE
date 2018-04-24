@@ -8,7 +8,6 @@
 #include "print.hpp"
 #include "set_Mat.hpp"
 #include "set_Vec.hpp"
-#include <iostream>
 
 namespace PSE
 {
@@ -40,7 +39,6 @@ namespace PSE
         if (d % 2 !=0) Nm1+=1;// need one more pt in central diff if odd derivative
         PetscScalar *s = new PetscScalar[Nm1];
         for (i=0; i<Nm1; i++) s[i] = i - (int((Nm1-1)/2)); // stencil over central diff of order
-        //for (int i=0; i<Nm1; i++) std::cout<<"s["<<i<<"] = "<<s[i]<<std::endl;; // stencil over central diff of order
         PetscScalar smax = s[Nm1-1];
 
         // solve for Coefficients given stencil
@@ -107,7 +105,6 @@ namespace PSE
                 MatZeroRows(output,1,&i,0.,0,0);
                 for (j=0; j<nlocal; j++) { 
                     MatSetValue(output,i,(PetscInt)PetscRealPart(sarray[j])+i,array[j]/denom,INSERT_VALUES);
-                    //std::cout<<" row = "<<i<<" col = "<<sarray[j]+i<<" value = "<<array[j]/denom<<std::endl;
                 }
                 set_Mat(output); // do nothing, but assemble
                 VecRestoreArray(Coeffsbottom[i],&array);
@@ -140,11 +137,7 @@ namespace PSE
                 MatZeroRows(output,1,&rowi,0.,0,0);
                 for (j=0; j<nlocal; j++) { 
                     MatSetValue(output,rowi,rowi+(PetscInt)PetscRealPart(sarray[j]),array[j]/denom,INSERT_VALUES);
-                    //std::cout<<" row = "<<n-i-1<<" col = "<<n-i-1+sarray[j]<<" value = "<<array[j]*12.<<"\n";
-                    //std::cout<<"      n= "<<n<<" sarray[j] = "<<sarray[j]<<" i="<<i<<std::endl;
                 }
-                //std::cout<<"Nm1 = "<<Nm1<<" for smaxi = "<<i<<std::endl;
-                //std::cout<<"  got D coeffs for smaxi = "<<i<<std::endl;
                 set_Mat(output); // do nothing, but assemble
                 VecRestoreArray(Coeffstop[i],&array);
                 VecRestoreArray(sVec,&sarray);
