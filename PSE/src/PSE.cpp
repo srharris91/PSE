@@ -180,10 +180,11 @@ int main(int argc,char **args){
         // init
         //Mat A,B;
         Vec q;
+        PetscScalar alpha;
         PetscScalar none=-1.0;
         PetscReal norm;
-        PetscInt ny=101,nz=6;
-        PetscScalar y[ny],z[nz];
+        PetscInt ny=201,nz=6;
+        PetscScalar ytest[ny],y[ny],ztest[nz],z[nz];
         PetscScalar pfive=0.5;
         PetscScalar hx=0.25;
         PetscInt dim=ny*nz*4;
@@ -202,7 +203,17 @@ int main(int argc,char **args){
         PSE::Init_Vec(q,dim);
         //ierr = VecSet(q,pfive);CHKERRQ(ierr);
         //PSE::set_Vec(q); // assemble
+        /*
         PSE::Read_q(q,dim,"../OrrSommerfeld_and_primitive/uvwP_201_evec.dat");
+        PSE::Read_q(ytest,ny,"../OrrSommerfeld_and_primitive/uvwP_201_y.dat");
+        PSE::Read_q(ztest,nz,"../OrrSommerfeld_and_primitive/uvwP_201_z.dat");
+        PSE::Read_q(alpha,"../OrrSommerfeld_and_primitive/uvwP_201_eig.dat");
+        */
+        PSE::Read_q(q,ytest,ny,ztest,nz,alpha);
+        //PetscPrintf(PETSC_COMM_WORLD,"alpha = %g + %g i",alpha.real(),alpha.imag());
+        PSE::printScalar(&alpha);
+        PSE::printScalar(ytest,ny);
+        PSE::printScalar(ztest,nz);
         PSE::printVecView(q);
         //PSE::printVecASCII(q);
         // free memory
