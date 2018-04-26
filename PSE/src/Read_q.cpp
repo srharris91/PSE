@@ -18,9 +18,13 @@ namespace PSE
             char const buff[]
             ){
         std::string fevec(buff), fy(buff), fz(buff), falpha(buff);
+        PetscPrintf(PETSC_COMM_WORLD,"\nbefore Read_q evec:\n");
         Read_q(evec,ny*nz*4,fevec.append("_evec.dat").c_str());
+        PetscPrintf(PETSC_COMM_WORLD,"\nbefore Read_q y:\n");
         Read_q(y,ny,fy.append("_y.dat").c_str());
+        PetscPrintf(PETSC_COMM_WORLD,"\nbefore Read_q z:\n");
         Read_q(z,nz,fz.append("_z.dat").c_str());
+        PetscPrintf(PETSC_COMM_WORLD,"\nbefore Read_q alpha:\n");
         Read_q(alpha,falpha.append("_eig.dat").c_str());
 
         return 0;
@@ -31,7 +35,7 @@ namespace PSE
             char const buff[]
             ){
         PetscErrorCode ierr;
-        PetscScalar read_scalar[n];
+        PetscScalar *read_scalar=new PetscScalar[n];
         for(int i=0; i<n; i++) read_scalar[i]=0;
         PetscMPIInt rank;
         MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
@@ -53,6 +57,7 @@ namespace PSE
             set_Vec(read_scalar,n,output,PETSC_FALSE); // set vector on rank = 0
         }
         set_Vec(output); // assemble matrix on all processors
+        delete[] read_scalar;
         return 0;
 
     }

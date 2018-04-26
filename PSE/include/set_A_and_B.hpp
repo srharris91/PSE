@@ -9,7 +9,6 @@ namespace PSE
      * \return 0 if successful
      */
     PetscInt set_A_and_B(
-            const PetscScalar &hx,  ///< hx step size
             const PetscScalar y[],  ///< y array
             const PetscInt &ny,     ///< size of y array
             const PetscScalar z[],  ///< z array

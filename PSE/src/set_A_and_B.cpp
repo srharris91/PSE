@@ -15,7 +15,6 @@
 namespace PSE
 {
     PetscInt set_A_and_B(
-            const PetscScalar &hx,
             const PetscScalar y[],
             const PetscInt &ny,
             const PetscScalar z[],
@@ -59,11 +58,6 @@ namespace PSE
         set_Mat(A);
         set_Mat(B);
 
-        // set A and b for output
-        MatAXPY(A,1./hx,B,DIFFERENT_NONZERO_PATTERN); // A+= 1./hx * B
-        set_Mat(A);
-        MatScale(B,1./hx);  // B*=1./hx
-        //MatMult(B,qn,b);    // b=B*qn
 
         //ierr = MatDestroy(&B);CHKERRQ(ierr);
         ierr = MatDestroy(&Dy);CHKERRQ(ierr);

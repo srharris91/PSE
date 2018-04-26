@@ -67,7 +67,7 @@ namespace PSE
         set_Mat(-i*m*omega,I,ny,A,dim,row_eq,col_u);//-imw
         set_Mat(i*alpha,U,ny,A,dim,row_eq,col_u);//ialpha*U
         //set_Mat(1.,Uy,ny,A,dim);//Ux
-        set_Mat((-1./Re) * (-pow(alpha,2)),I,ny,A,dim,row_eq,col_u);//Re^-1 * alpha^2
+        set_Mat((1./Re) * (pow(alpha,2)),I,ny,A,dim,row_eq,col_u);//Re^-1 * alpha^2
         set_Mat(-1./Re,Dyy,ny,A,dim,row_eq,col_u);// -Re^-1 Dyy
         set_Mat(-1./Re,Dzz,nz,ny,zi,A,dim,row_eq,col_u-4*zi*ny); // -Re^-1 Dzz
         // v-terms
@@ -76,8 +76,8 @@ namespace PSE
         //P-terms
         set_Mat((1./rho) * i*alpha,I,ny,A,dim,row_eq,col_P);//imw
         // set u-mom equation for B
-        set_Mat(1.,U,ny,B,dim,row_eq,col_u);//ialpha*U
-        set_Mat(1./rho,I,ny,B,dim,row_eq,col_P);//ialpha*U
+        set_Mat(1.,U,ny,B,dim,row_eq,col_u);//U
+        set_Mat(1./rho,I,ny,B,dim,row_eq,col_P);//1/rho
 
         // set v-mom equation for A
         row_eq = (4*zi+1)*ny;

@@ -150,7 +150,8 @@ int main(int argc,char **args){
         //PSE::Init_Vec(qp1,dim);
         ierr = VecSet(q,pfive);CHKERRQ(ierr);
         PSE::set_Vec(q); // assemble
-        PSE::set_A_and_B(hx,y,ny,z,nz,A,B,2000.,1.,1.,1.,1.);
+        PSE::set_A_and_B(y,ny,z,nz,A,B,2000.,1.,1.,1.,1.);
+        PSE::set_Euler_Advance(hx,A,B);
         PSE::Init_Vec(b,dim);
         PSE::set_b(B,q,b);
         // set BCs
@@ -219,24 +220,29 @@ int main(int argc,char **args){
         //ierr = MatDestroy(&A);CHKERRQ(ierr);
         ierr = VecDestroy(&q);CHKERRQ(ierr);
     }
-    if(1){ // compare against matmult and Ax_b using data
+    if(1){ // advance q one step, and check growth
         // init
         Mat A,B;
         Vec b,q,qp1;
         PetscScalar Re=6000.,rho=1.,alpha,m=1.,omega=0.27;
         PetscScalar none=-1.0;
         PetscReal norm;
-        PetscInt ny=201,nz=6;
+        PetscInt ny=251,nz=6;
         PetscScalar y[ny],z[nz];
         PetscScalar hx=0.001;
         PetscInt dim=ny*nz*4;
         PSE::Init_Vec(q,dim);
         // read in q,y,z,alpha from binary files
-        PSE::Read_q(q,y,ny,z,nz,alpha);
+        PetscPrintf(PETSC_COMM_WORLD,"\nbefore Read_q:\n");
+        PSE::Read_q(q,y,ny,z,nz,alpha,"uvwP_251");
+        PSE::printVecView(q);
+        PSE::printScalar(y,ny);
+        //PSE::Read_q(q,y,ny,z,nz,alpha);
         PetscPrintf(PETSC_COMM_WORLD,"\noutput:\n");
         PSE::printScalar(&alpha);
         // set A,b 
-        PSE::set_A_and_B(hx,y,ny,z,nz,A,B,Re,rho,alpha,m,omega);
+        PSE::set_A_and_B(y,ny,z,nz,A,B,Re,rho,alpha,m,omega);
+        PSE::set_Euler_Advance(hx,A,B);
         PSE::Init_Vec(b,dim);
         PSE::set_b(B,q,b); //B*q->b
         // set BCs
@@ -260,6 +266,49 @@ int main(int argc,char **args){
         ierr = VecDestroy(&b);CHKERRQ(ierr);
         ierr = VecDestroy(&q);CHKERRQ(ierr);
         ierr = VecDestroy(&qp1);CHKERRQ(ierr);
+    }
+    if(0){ // compare against matmult and Ax_b using data
+        // init
+        Mat A,B;
+        Vec b,q,Aq;
+        PetscScalar Re=6000.,rho=1.,alpha,m=1.,omega=0.27;
+        PetscScalar none=-1.0;
+        PetscReal norm;
+        PetscInt ny=201,nz=6;
+        PetscScalar y[ny],z[nz];
+        PetscScalar hx=0.001;
+        PetscInt dim=ny*nz*4;
+        PSE::Init_Vec(q,dim);
+        // read in q,y,z,alpha from binary files
+        PSE::Read_q(q,y,ny,z,nz,alpha);
+        PetscPrintf(PETSC_COMM_WORLD,"\noutput:\n");
+        PSE::printScalar(&alpha);
+        // set A,b 
+        PSE::set_A_and_B(y,ny,z,nz,A,B,Re,rho,alpha,m,omega);
+        //PSE::set_Euler_Advance(hx,A,B);
+        PSE::Init_Vec(b,dim);
+        PSE::set_b(B,q,b); //B*q->b
+        // set BCs
+        PSE::set_BCs(A,b,ny,nz);
+        PSE::set_Vec(b); // assemble b
+        // view A
+        //PSE::printMatView(A);
+        //PSE::printMatASCII(A,"printMatASCII_dense.txt",PETSC_VIEWER_ASCII_DENSE);
+        //PSE::printMatASCII(A);
+        // Check if Aq = 0 or not
+        PSE::Init_Vec(Aq,dim);
+        MatMult(A,q,Aq);
+        // view solution
+        PSE::printVecView(q);
+        PSE::printVecView(Aq);
+        PSE::printVecASCII(Aq,"Aq.txt");
+        //PSE::printVecView(qexact);
+        // free memory
+        ierr = MatDestroy(&A);CHKERRQ(ierr);
+        ierr = MatDestroy(&B);CHKERRQ(ierr);
+        ierr = VecDestroy(&b);CHKERRQ(ierr);
+        ierr = VecDestroy(&q);CHKERRQ(ierr);
+        ierr = VecDestroy(&Aq);CHKERRQ(ierr);
     }
 
     ierr = PetscFinalize();
