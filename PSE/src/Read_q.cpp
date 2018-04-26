@@ -1,3 +1,5 @@
+#define ANSI_COLOR_GREEN   "\x1b[32m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
 #include "Read_q.hpp"
 #include "print.hpp"
 #include "set_Vec.hpp"
@@ -38,7 +40,7 @@ namespace PSE
             latfile=fopen(buff,"r");
             fread(read_scalar,sizeof(double),2*n,latfile);
             fclose(latfile);
-            ierr = PetscPrintf(PETSC_COMM_WORLD,"\n\nReading in vector\n");CHKERRQ(ierr);
+            ierr = PetscPrintf(PETSC_COMM_WORLD,ANSI_COLOR_GREEN "\nReading in %s\n" ANSI_COLOR_RESET,buff);CHKERRQ(ierr);
             /*
             for (int i=0; i<n; i++){// 2*n because of complex variables
                 ierr = PetscPrintf(PETSC_COMM_WORLD,"  x[%i] = %g + %g i\n",
@@ -48,7 +50,6 @@ namespace PSE
             }
             */
             //printScalar(read_scalar,n);
-            ierr = PetscPrintf(PETSC_COMM_WORLD,"done Reading in read_scalar\n\n\n");CHKERRQ(ierr);
             set_Vec(read_scalar,n,output,PETSC_FALSE); // set vector on rank = 0
         }
         set_Vec(output); // assemble matrix on all processors
@@ -66,7 +67,7 @@ namespace PSE
         latfile=fopen(buff,"r");
         fread(output,sizeof(double),2*n,latfile); // 2n because of complex numbers
         fclose(latfile);
-        ierr = PetscPrintf(PETSC_COMM_WORLD,"\n\nReading in vector\n");CHKERRQ(ierr);
+        ierr = PetscPrintf(PETSC_COMM_WORLD,ANSI_COLOR_GREEN "\nReading in %s\n" ANSI_COLOR_RESET,buff);CHKERRQ(ierr);
         return 0;
 
     }
@@ -84,7 +85,7 @@ namespace PSE
         output = read_scalar[0] + read_scalar[1]*PETSC_i;
         //PetscRealPart(output) = read_scalar[0];
         //PetscImaginaryPart(output) = read_scalar[1];
-        ierr = PetscPrintf(PETSC_COMM_WORLD,"\n\nReading in vector\n");CHKERRQ(ierr);
+        ierr = PetscPrintf(PETSC_COMM_WORLD,ANSI_COLOR_GREEN "\nReading in %s\n" ANSI_COLOR_RESET,buff);CHKERRQ(ierr);
         return 0;
 
     }

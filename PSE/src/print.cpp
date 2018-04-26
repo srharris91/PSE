@@ -4,7 +4,7 @@ namespace PSE
     PetscErrorCode printScalar( const PetscScalar x[], const PetscInt n,char const name[],PetscViewer viewer){
         PetscErrorCode ierr;
         if (n==1){
-            ierr = PetscPrintf(PETSC_COMM_WORLD,"  %s = %g + %g i\n",name,(double)PetscRealPart(x[0]),PetscImaginaryPart(x[0]));CHKERRQ(ierr);
+            ierr = PetscPrintf(PETSC_COMM_WORLD,"  %s = %e + %e i\n",name,(double)PetscRealPart(x[0]),PetscImaginaryPart(x[0]));CHKERRQ(ierr);
         }
         else{
             PetscScalarView(n,x,viewer);

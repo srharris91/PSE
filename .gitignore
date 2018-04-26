@@ -1,5 +1,6 @@
 # data
 *.dat
+*.txt
 # swp files
 *swp
 # Byte-compiled / optimized / DLL files

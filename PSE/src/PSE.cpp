@@ -1,3 +1,11 @@
+//#define ANSI_COLOR_RED     "\x1b[31m"
+//#define ANSI_COLOR_GREEN   "\x1b[32m"
+//#define ANSI_COLOR_YELLOW  "\x1b[33m"
+//#define ANSI_COLOR_BLUE    "\x1b[34m"
+//#define ANSI_COLOR_MAGENTA "\x1b[35m"
+//#define ANSI_COLOR_CYAN    "\x1b[36m"
+//#define ANSI_COLOR_RESET   "\x1b[0m"
+
 static char help[] = "Solves a linear system in parallel with KSP.\n\n";
 
 /** @file
@@ -174,51 +182,84 @@ int main(int argc,char **args){
         ierr = VecDestroy(&b);CHKERRQ(ierr);
         ierr = VecDestroy(&bexact);CHKERRQ(ierr);
         ierr = VecDestroy(&q);CHKERRQ(ierr);
+        ierr = VecDestroy(&qp1);CHKERRQ(ierr);
         ierr = VecDestroy(&qexact);CHKERRQ(ierr);
     }
-    if(1){ // compare against matmult and Ax_b
+    if(0){ // read in eig-value, eig-vectors, y and z
         // init
-        //Mat A,B;
         Vec q;
         PetscScalar alpha;
-        PetscScalar none=-1.0;
-        PetscReal norm;
         PetscInt ny=201,nz=6;
-        PetscScalar ytest[ny],y[ny],ztest[nz],z[nz];
-        PetscScalar pfive=0.5;
-        PetscScalar hx=0.25;
+        PetscScalar y[ny],z[nz];
         PetscInt dim=ny*nz*4;
 
         // linspace y,z
-        PetscScalar ay=-1.,by=1.;   // [a,b] for y vector
-        PetscScalar az=0.,bz=1.;    // [a,b] for z vector
-        PetscScalar dy = (by-ay)/((PetscScalar)ny - 1.);
-        PetscScalar dz = (bz-az)/((PetscScalar)nz - 1.);
-        PetscScalar val;
-        PetscInt i;
-        for (i=0,val=ay; i<ny; i++,val+=dy) y[i] = val;
-        for (i=0,val=az; i<nz; i++,val+=dz) z[i] = val;
-        //for (PetscInt i=0; i<nz; i++) z[i] = ((PetscScalar)i) / ((PetscScalar) nz);
-        // set A,b with q=0.5
         PSE::Init_Vec(q,dim);
-        //ierr = VecSet(q,pfive);CHKERRQ(ierr);
-        //PSE::set_Vec(q); // assemble
-        /*
-        PSE::Read_q(q,dim,"../OrrSommerfeld_and_primitive/uvwP_201_evec.dat");
-        PSE::Read_q(ytest,ny,"../OrrSommerfeld_and_primitive/uvwP_201_y.dat");
-        PSE::Read_q(ztest,nz,"../OrrSommerfeld_and_primitive/uvwP_201_z.dat");
-        PSE::Read_q(alpha,"../OrrSommerfeld_and_primitive/uvwP_201_eig.dat");
-        */
-        PSE::Read_q(q,ytest,ny,ztest,nz,alpha);
+        if (0){ // create y and z from linspace
+            PetscScalar ay=-1.,by=1.;   // [a,b] for y vector
+            PetscScalar az=0.,bz=1.;    // [a,b] for z vector
+            PetscScalar dy = (by-ay)/((PetscScalar)ny - 1.);
+            PetscScalar dz = (bz-az)/((PetscScalar)nz - 1.);
+            PetscScalar val;
+            PetscInt i;
+            for (i=0,val=ay; i<ny; i++,val+=dy) y[i] = val;
+            for (i=0,val=az; i<nz; i++,val+=dz) z[i] = val;
+        }
+        else{// read from files (including y and z
+            PSE::Read_q(q,y,ny,z,nz,alpha);
+        }
         //PetscPrintf(PETSC_COMM_WORLD,"alpha = %g + %g i",alpha.real(),alpha.imag());
+        PetscPrintf(PETSC_COMM_WORLD,"\noutput:\n");
         PSE::printScalar(&alpha);
-        PSE::printScalar(ytest,ny);
-        PSE::printScalar(ztest,nz);
+        PSE::printScalar(y,ny);
+        PSE::printScalar(z,nz);
         PSE::printVecView(q);
         //PSE::printVecASCII(q);
         // free memory
         //ierr = MatDestroy(&A);CHKERRQ(ierr);
         ierr = VecDestroy(&q);CHKERRQ(ierr);
+    }
+    if(1){ // compare against matmult and Ax_b using data
+        // init
+        Mat A,B;
+        Vec b,q,qp1;
+        PetscScalar Re=6000.,rho=1.,alpha,m=1.,omega=0.27;
+        PetscScalar none=-1.0;
+        PetscReal norm;
+        PetscInt ny=201,nz=6;
+        PetscScalar y[ny],z[nz];
+        PetscScalar hx=0.001;
+        PetscInt dim=ny*nz*4;
+        PSE::Init_Vec(q,dim);
+        // read in q,y,z,alpha from binary files
+        PSE::Read_q(q,y,ny,z,nz,alpha);
+        PetscPrintf(PETSC_COMM_WORLD,"\noutput:\n");
+        PSE::printScalar(&alpha);
+        // set A,b 
+        PSE::set_A_and_B(hx,y,ny,z,nz,A,B,Re,rho,alpha,m,omega);
+        PSE::Init_Vec(b,dim);
+        PSE::set_b(B,q,b); //B*q->b
+        // set BCs
+        PSE::set_BCs(A,b,ny,nz);
+        // view A
+        //PSE::printMatView(A);
+        //PSE::printMatASCII(A,"printMatASCII_dense.txt",PETSC_VIEWER_ASCII_DENSE);
+        //PSE::printMatASCII(A);
+        // solve Ax=b
+        PSE::set_Vec(b); // assemble b
+        PSE::Ax_b(A,qp1,b,dim);
+        // view solution
+        PSE::printVecView(q);
+        PSE::printVecView(qp1);
+        PSE::printVecASCII(q  ,"printVecq.txt");
+        PSE::printVecASCII(qp1,"printVecqp1.txt");
+        //PSE::printVecView(qexact);
+        // free memory
+        ierr = MatDestroy(&A);CHKERRQ(ierr);
+        ierr = MatDestroy(&B);CHKERRQ(ierr);
+        ierr = VecDestroy(&b);CHKERRQ(ierr);
+        ierr = VecDestroy(&q);CHKERRQ(ierr);
+        ierr = VecDestroy(&qp1);CHKERRQ(ierr);
     }
 
     ierr = PetscFinalize();

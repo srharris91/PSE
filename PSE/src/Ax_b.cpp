@@ -61,7 +61,7 @@ namespace PSE
         KSP            ksp;         /* linear solver context */
         PetscErrorCode ierr;
         
-        // Create parallel vectors x from b
+        // Create parallel vectors x
         Init_Vec(x,n);
         //ierr = VecDuplicate(b,&x);CHKERRQ(ierr);
         //ierr = VecDuplicate(x,&b);CHKERRQ(ierr);
