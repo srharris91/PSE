@@ -40,6 +40,7 @@ namespace PSE
         base_flow(U,Uy,y,ny);
         // set D operators
         set_D(y,ny,Dy,order,1);
+        printMatASCII(Dy,"Dy.txt");
         set_D(z,nz,Dz,order,1,PETSC_TRUE);
         set_D(z,nz,Dzz,order,2,PETSC_TRUE);
         set_D(y,ny,Dyy,order,2);

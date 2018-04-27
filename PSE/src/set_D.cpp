@@ -76,32 +76,44 @@ namespace PSE
 
         // set BC so we don't go out of range on top and bottom
         if (!periodic){
-            //if (d % 2 !=0) Nm1-=1;// need one less pt in shifted diff if odd derivative (vs central)
+            if (d % 2 !=0) {
+                Nm1=N-1;// need one less pt in shifted diff if odd derivative (vs central)
+                //PetscPrintf(PETSC_COMM_WORLD,"\n\n  Nm1 = %i on d=%i\n\n",Nm1,d);
+            }
+            Vec sVecNm1;
+            Init_Vec(sVecNm1,Nm1);
             Vec Coeffsbottom[(PetscInt)PetscRealPart(smax)];
             Vec Coeffstop[(PetscInt)PetscRealPart(smax)];
             for (i=0; i<PetscRealPart(smax); i++){
                 // bottom BC
                 if (reduce_wall_order){
-                    PetscScalar *s = new PetscScalar[Nm1]; // resize
-                    for (j=0; j<Nm1; j++) s[j] = j - i; // stencil over central diff of order
+                    PetscScalar *sbot = new PetscScalar[Nm1]; // resize
+                    for (j=0; j<Nm1; j++) {
+                        if (d % 2 !=0) {
+                            //PetscPrintf(PETSC_COMM_WORLD,"\n\n      Set s[%i] = %i\n\n",j,j-i);
+                        }
+                        sbot[j] = j - i; // stencil over central diff of order
+                    }
                     // solve for Coefficients given stencil
-                    get_D_Coeffs(s,Nm1,Coeffsbottom[i],d);
+                    get_D_Coeffs(sbot,Nm1,Coeffsbottom[i],d);
                     // set values in matrix
-                    set_Vec(s,Nm1,sVec);
-                    //printVecView(sVec,Nm1);
+                    set_Vec(sbot,Nm1,sVecNm1);
+                    //PetscPrintf(PETSC_COMM_WORLD,"\n\n  set sbot with Nm1 = %i on d=%i\n\n",Nm1,d);
+                    //printVecView(sVecNm1);
+                    delete[] sbot;
                 }
                 else{
-                    PetscScalar *s = new PetscScalar[N]; // resize
-                    for (j=0; j<N; j++) s[j] = j - i; // stencil over central diff of order
+                    PetscScalar *sbot = new PetscScalar[N]; // resize
+                    for (j=0; j<N; j++) sbot[j] = j - i; // stencil over central diff of order
                     // solve for Coefficients given stencil
-                    get_D_Coeffs(s,N,Coeffsbottom[i],d);
+                    get_D_Coeffs(sbot,N,Coeffsbottom[i],d);
                     // set values in matrix
-                    set_Vec(s,N,sVec);
+                    set_Vec(sbot,N,sVecNm1);
                 }
                 // set D matrix
                 VecGetLocalSize(Coeffsbottom[i],&nlocal);
                 VecGetArray(Coeffsbottom[i],&array);
-                VecGetArray(sVec,&sarray);
+                VecGetArray(sVecNm1,&sarray);
                 MatZeroRows(output,1,&i,0.,0,0);
                 for (j=0; j<nlocal; j++) { 
                     MatSetValue(output,i,(PetscInt)PetscRealPart(sarray[j])+i,array[j]/denom,INSERT_VALUES);
@@ -109,30 +121,31 @@ namespace PSE
                 set_Mat(output); // do nothing, but assemble
                 VecRestoreArray(Coeffsbottom[i],&array);
                 ierr = VecDestroy(&Coeffsbottom[i]);CHKERRQ(ierr);
-                VecRestoreArray(sVec,&sarray);
+                VecRestoreArray(sVecNm1,&sarray);
  
                 // top BC
                 if (reduce_wall_order){
-                    PetscScalar *s = new PetscScalar[Nm1]; // resize
-                    for (j=0; j<Nm1; j++) s[j] = -(j - i); // stencil over central diff of order
+                    PetscScalar *stop = new PetscScalar[Nm1]; // resize
+                    for (j=0; j<Nm1; j++) stop[j] = -(j - i); // stencil over central diff of order
                     // solve for Coefficients given stencil
-                    get_D_Coeffs(s,Nm1,Coeffstop[i],d);
+                    get_D_Coeffs(stop,Nm1,Coeffstop[i],d);
                     // set values in matrix
-                    set_Vec(s,Nm1,sVec);
-                    //printVecView(sVec,Nm1);
+                    set_Vec(stop,Nm1,sVecNm1);
+                    //printVecView(sVecNm1,Nm1);
+                    delete[] stop;
                 }
                 else{
-                    PetscScalar *s = new PetscScalar[N]; // resize
-                    for (j=0; j<N; j++) s[j] = -(j - i); // stencil over central diff of order
+                    PetscScalar *stop = new PetscScalar[N]; // resize
+                    for (j=0; j<N; j++) stop[j] = -(j - i); // stencil over central diff of order
                     // solve for Coefficients given stencil
-                    get_D_Coeffs(s,N,Coeffstop[i],d);
+                    get_D_Coeffs(stop,N,Coeffstop[i],d);
                     // set values in matrix
-                    set_Vec(s,N,sVec);
+                    set_Vec(stop,N,sVecNm1);
                 }
                 // set D matrix
                 VecGetLocalSize(Coeffstop[i],&nlocal);
                 VecGetArray(Coeffstop[i],&array);
-                VecGetArray(sVec,&sarray);
+                VecGetArray(sVecNm1,&sarray);
                 PetscInt rowi = n-i-1;
                 MatZeroRows(output,1,&rowi,0.,0,0);
                 for (j=0; j<nlocal; j++) { 
@@ -140,9 +153,10 @@ namespace PSE
                 }
                 set_Mat(output); // do nothing, but assemble
                 VecRestoreArray(Coeffstop[i],&array);
-                VecRestoreArray(sVec,&sarray);
+                VecRestoreArray(sVecNm1,&sarray);
                 ierr = VecDestroy(&Coeffstop[i]);CHKERRQ(ierr);
             }
+            ierr = VecDestroy(&sVecNm1);CHKERRQ(ierr);
         }
         //printVecView(Coeffs,Nm1);
         //MatDuplicate(output,MAT_COPY_VALUES,&output);

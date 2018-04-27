@@ -1,5 +1,6 @@
 #include "set_Vec.hpp"
 #include "Init_Vec.hpp"
+#include <iostream>
 
 namespace PSE{
     PetscInt set_Vec(

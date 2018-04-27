@@ -21,7 +21,7 @@ namespace PSE
             i=(4*zi+1)*ny;
             MatZeroRows(A,1,&i,1.,0,0);
             VecSetValues(b,1,&i,&zero,INSERT_VALUES);
-            i=(4*zi+2)*ny-1;
+            i=(4*zi+2)*ny - 1;
             MatZeroRows(A,1,&i,1.,0,0);
             VecSetValues(b,1,&i,&zero,INSERT_VALUES);
             // w-mom bottom and top

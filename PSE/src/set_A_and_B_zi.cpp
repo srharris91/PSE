@@ -121,7 +121,7 @@ namespace PSE
         // set continuity equation for A
         row_eq = (4*zi+3)*ny;
         // u-terms
-        set_Mat(-i*alpha,I,ny,A,dim,row_eq,col_u);//ialpha*u
+        set_Mat(i*alpha,I,ny,A,dim,row_eq,col_u);//ialpha*u
         // v-terms
         set_Mat(1.,Dy,ny,A,dim,row_eq,col_v);//Dy*v
         // w-terms
