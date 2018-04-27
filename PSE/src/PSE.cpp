@@ -232,7 +232,7 @@ int main(int argc,char **args){
         PSE::Init_Vec(q,dim);
         // read in q,y,z,alpha from binary files
         PSE::Read_q(q,y,ny,z,nz,alpha,"../OrrSommerfeld_and_primitive/uvwP_101");
-        PSE::printVecView(q);
+        //PSE::printVecView(q);
         //PSE::printScalar(y,ny);
         //PSE::Read_q(q,y,ny,z,nz,alpha);
         PetscPrintf(PETSC_COMM_WORLD,"\noutput:\n");
@@ -252,8 +252,8 @@ int main(int argc,char **args){
         PSE::set_Vec(b); // assemble b
         PSE::Ax_b(A,qp1,b,dim);
         // view solution
-        PSE::printVecView(q);
-        PSE::printVecView(qp1);
+        //PSE::printVecView(q);
+        //PSE::printVecView(qp1);
         PSE::printVecASCII(q  ,"printVecq.txt");
         PSE::printVecASCII(qp1,"printVecqp1.txt");
         //PSE::printVecView(qexact);
@@ -287,15 +287,15 @@ int main(int argc,char **args){
         PSE::set_BCs(A,b,ny,nz);
         PSE::set_Vec(b); // assemble b
         // view A
-        PSE::printMatView(A);
+        //PSE::printMatView(A);
         //PSE::printMatASCII(A,"printMatASCII_dense.txt",PETSC_VIEWER_ASCII_DENSE);
-        PSE::printMatASCII(A,"A.txt",PETSC_VIEWER_ASCII_MATLAB);
+        PSE::printMatASCII(A,"A.m",PETSC_VIEWER_ASCII_MATLAB);
         // Check if Aq = 0 or not
         PSE::Init_Vec(Aq,dim);
         MatMult(A,q,Aq);
         // view solution
-        PSE::printVecView(q);
-        PSE::printVecView(Aq);
+        //PSE::printVecView(q);
+        //PSE::printVecView(Aq);
         PSE::printVecASCII(Aq,"Aq.txt");
         // free memory
         ierr = MatDestroy(&A);CHKERRQ(ierr);

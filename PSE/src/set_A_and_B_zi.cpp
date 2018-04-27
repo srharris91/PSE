@@ -85,7 +85,7 @@ namespace PSE
         // v-terms
         set_Mat(-i*m*omega,I,ny,A,dim,row_eq,col_v);//-imw
         set_Mat(i*alpha,U,ny,A,dim,row_eq,col_v);//ialpha*U
-        set_Mat((-1./Re) * (-pow(alpha,2)),I,ny,A,dim,row_eq,col_v);//-Re^-1 - alpha^2
+        set_Mat((1./Re) * (pow(alpha,2)),I,ny,A,dim,row_eq,col_v);//-Re^-1 - alpha^2
         set_Mat(-1./Re,Dyy,ny,A,dim,row_eq,col_v);//-Re^-1 - alpha^2
         set_Mat(-1./Re,Dzz,nz,ny,zi,A,dim,row_eq,col_v-4*zi*ny); // -Re^-1 Dzz
         // w-terms
