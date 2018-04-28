@@ -6,7 +6,8 @@ namespace PSE{
     PetscInt set_Mat(
             const PetscScalar* const* Ain,
             const PetscInt &n,
-            Mat &A
+            Mat &A,
+            const InsertMode &addv
             ){
         PetscInt Istart, Iend, Ii, col[n],i;
         for(i=0;i<n;i++) col[i]=i;
@@ -23,7 +24,7 @@ namespace PSE{
         // Set matrix elements (in parallel)
 
         for (Ii=Istart; Ii<Iend; Ii++){ // in parallel all of the values
-            ierr = MatSetValues(A,1,&Ii,n,col,Ain[Ii],ADD_VALUES);CHKERRQ(ierr);
+            ierr = MatSetValues(A,1,&Ii,n,col,Ain[Ii],addv);CHKERRQ(ierr);
         }
 
 
@@ -41,7 +42,8 @@ namespace PSE{
             const PetscInt &n,
             Mat &A,
             const PetscInt &k,
-            const PetscBool &parallel
+            const PetscBool &parallel,
+            const InsertMode &addv
             ){
         PetscErrorCode ierr;
 
@@ -59,14 +61,14 @@ namespace PSE{
             ierr = MatGetOwnershipRange(A,&Istart,&Iend);CHKERRQ(ierr);
             for (Ii=Istart; Ii<Iend; Ii++){ // in parallel all of the values
                 if (Ii+k >= 0 && Ii+k <= n-1){
-                    ierr = MatSetValue(A,Ii,(Ii + k),diag,ADD_VALUES);CHKERRQ(ierr);
+                    ierr = MatSetValue(A,Ii,(Ii + k),diag,addv);CHKERRQ(ierr);
                 }
             }
         }
         else{
             for (PetscInt Ii=0; Ii<n; Ii++){ // in parallel all of the values
                 if (Ii+k >= 0 && Ii+k <= n-1){
-                    ierr = MatSetValue(A,Ii,(Ii + k),diag,ADD_VALUES);CHKERRQ(ierr);
+                    ierr = MatSetValue(A,Ii,(Ii + k),diag,addv);CHKERRQ(ierr);
                 }
             }
         }
@@ -92,7 +94,8 @@ namespace PSE{
             const PetscInt &row,
             const PetscInt &col,
             Mat &A,
-            const PetscBool &parallel
+            const PetscBool &parallel,
+            const InsertMode &addv
             ){
         PetscErrorCode ierr;
         if (parallel){
@@ -100,7 +103,7 @@ namespace PSE{
             ierr = MatGetOwnershipRange(A,&Istart,&Iend);CHKERRQ(ierr);
             for (Ii=Istart; Ii<Iend; Ii++){ // in parallel all of the values
                 if (Ii == row){
-                    ierr = MatSetValue(A,row,col,value,ADD_VALUES);CHKERRQ(ierr);
+                    ierr = MatSetValue(A,row,col,value,addv);CHKERRQ(ierr);
                 }
             }
         }
@@ -108,7 +111,7 @@ namespace PSE{
             PetscMPIInt rank;
             MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
             if(rank==0){
-                ierr = MatSetValue(A,row,col,value,ADD_VALUES);CHKERRQ(ierr);
+                ierr = MatSetValue(A,row,col,value,addv);CHKERRQ(ierr);
             }
         }
         return 0;
@@ -147,6 +150,7 @@ namespace PSE{
             
             MatRestoreRow(Asub,i,&ncols,&cols,&vals);
         }
+        set_Mat(A);
         return 0;
     }
 
@@ -201,6 +205,7 @@ namespace PSE{
                 MatRestoreRow(Dz,i,&ncols,&cols,&vals);
             }
         }
+        set_Mat(A);// assemble strange Dz values inserted
         return 0;
     }
 }

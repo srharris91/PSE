@@ -10,7 +10,8 @@ namespace PSE{
     PetscInt set_Mat(
             const PetscScalar* const* Ain,  ///< Matrix set on all processors as 2D array
             const PetscInt &n,              ///< size of nxn matrix
-            Mat &A                          ///< Mat to SetValues and output in parallel
+            Mat &A,                         ///< Mat to SetValues and output in parallel
+            const InsertMode &addv=ADD_VALUES ///< insert values or add values to matrix A
             );
 
     /**
@@ -23,7 +24,8 @@ namespace PSE{
             const PetscInt &n,          ///< size of nxn matrix
             Mat &A,                     ///< Mat to SetValues and output in parallel
             const PetscInt &k=0,        ///< diagonal offset in matrix (k=0 is main diagonal, k>0 is above main diagonal, k<0 is below main diagonal) default is 0
-            const PetscBool &parallel=PETSC_TRUE  ///< set the matrix using Istart and Iend
+            const PetscBool &parallel=PETSC_TRUE, ///< set the matrix using Istart and Iend
+            const InsertMode &addv=ADD_VALUES ///< insert values or add values to matrix A
             );
     /**
      * \brief Assemble matrix
@@ -44,7 +46,8 @@ namespace PSE{
             const PetscInt &row,        ///< specified global row in Mat A
             const PetscInt &col,        ///< specified global col in Mat A
             Mat &A,                     ///< Matrix A to set value
-            const PetscBool &parallel=PETSC_TRUE   ///< do this in parallel?
+            const PetscBool &parallel=PETSC_TRUE,  ///< do this in parallel?
+            const InsertMode &addv=ADD_VALUES ///< insert values or add values to matrix A
             );
 
     /**

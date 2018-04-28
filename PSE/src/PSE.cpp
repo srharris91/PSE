@@ -227,7 +227,7 @@ int main(int argc,char **args){
         PetscScalar Re=6000.,rho=1.,alpha,m=1.,omega=0.27;
         PetscInt ny=101,nz=6;
         PetscScalar y[ny],z[nz];
-        PetscScalar hx=0.000001;
+        PetscScalar hx=0.01;
         PetscInt dim=ny*nz*4;
         PSE::Init_Vec(q,dim);
         // read in q,y,z,alpha from binary files
@@ -239,11 +239,15 @@ int main(int argc,char **args){
         PSE::printScalar(&alpha);
         // set A,b 
         PSE::set_A_and_B(y,ny,z,nz,A,B,Re,rho,alpha,m,omega);
+        // set BCs in A and B
+        PSE::set_BCs(A,B,ny,nz);
+        // set up Euler advancing matrices
         PSE::set_Euler_Advance(hx,A,B);
+        // set b vector from b=B*q
         PSE::Init_Vec(b,dim);
         PSE::set_b(B,q,b); //B*q->b
-        // set BCs
-        PSE::set_BCs(A,b,ny,nz);
+        // set BCs alternate BC setting
+        //PSE::set_BCs(A,b,ny,nz);
         // view A
         //PSE::printMatView(A);
         //PSE::printMatASCII(A,"printMatASCII_dense.txt",PETSC_VIEWER_ASCII_DENSE);
@@ -264,7 +268,7 @@ int main(int argc,char **args){
         ierr = VecDestroy(&q);CHKERRQ(ierr);
         ierr = VecDestroy(&qp1);CHKERRQ(ierr);
     }
-    if(1){ // compare against matmult and Ax_b using data
+    if(1){ // compare against matmult and Ax_b using data (should be exactly equal to OSS equations from python scripts)
         // init
         Mat A,B;
         Vec b,q,Aq;

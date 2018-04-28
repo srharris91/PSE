@@ -1,6 +1,7 @@
 # data
 *.dat
 *.txt
+*.csv
 *.m
 *.mat
 # swp files

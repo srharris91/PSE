@@ -14,6 +14,17 @@ namespace PSE
             const PetscInt &ny,     ///< size of y array
             const PetscInt &nz     ///< size of z array
             );
+    /** 
+     * 
+     * \brief sets Boundary Condition equations in Matrix A and Matrix B in A+ B*dqdx=0 linear system for solving the PSE equations
+     * \return 0 if successful
+     */
+    PetscInt set_BCs(
+            Mat &A,                 ///< A matrix
+            Mat &B,                 ///< B Matrix
+            const PetscInt &ny,     ///< size of y array
+            const PetscInt &nz     ///< size of z array
+            );
 }
 
 #endif
