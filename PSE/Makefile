@@ -18,7 +18,7 @@ docs:
 	doxygen
 
 clean:: clean-legacy
-	@${RM} PSE
+	@${RM} PSE *.m *.txt *.mat
 
 exPSE: ${OBJFILES}
 	-@${CLINKER} -o ${EXECUTABLE} ${OBJFILES}  ${PETSC_KSP_LIB}
