@@ -57,5 +57,7 @@
 #include "set_BCs.hpp"
 #include "set_b.hpp"
 #include "set_Euler_Advance.hpp"
+#include "trapz.hpp"
+#include "calc_Closure.hpp"
 
 #endif

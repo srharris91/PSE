@@ -38,5 +38,43 @@ namespace PSE{
         ierr = VecAssemblyEnd(b); CHKERRQ(ierr);
         return 0;
     }
+    PetscInt set_Vec(
+            const PetscScalar &bin,
+            const PetscInt &n,
+            Vec &b
+            ){
+        PetscErrorCode ierr;
+        //set vec
+        ierr = VecSetValues(b,1,&n,&bin,INSERT_VALUES);CHKERRQ(ierr);
+
+        return 0;
+    }
+    PetscInt set_Vec(
+            const Vec &inVec,
+            const PetscInt &low,
+            const PetscInt &hi,
+            Vec &subVec
+            ){
+        // init subvec
+        Init_Vec(subVec,hi-low);
+        // range for inVec
+        PetscInt low_local,high_local;
+        VecGetOwnershipRange(inVec,&low_local,&high_local);
+        PetscScalar to_insert;
+        for(int i=low_local; i<high_local; ++i) {
+            if (i>=low && i<hi) {
+                //std::cout<<"i = "<<i<<std::endl;
+                VecGetValues(inVec,1,&i,&to_insert);
+                //std::cout<<"to_insert = "<<to_insert<<std::endl;
+                PetscInt loc=i-low;
+                set_Vec(to_insert,loc,subVec);
+            }
+
+        }
+        set_Vec(subVec);// assemble
+
+        return 0;
+    }
+    
 }
 

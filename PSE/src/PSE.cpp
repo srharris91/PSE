@@ -220,7 +220,7 @@ int main(int argc,char **args){
         //ierr = MatDestroy(&A);CHKERRQ(ierr);
         ierr = VecDestroy(&q);CHKERRQ(ierr);
     }
-    if(1){ // advance q one step, and check growth
+    if(0){ // advance q one step, and check growth
         // init
         Mat A,B;
         Vec b,q,qp1;
@@ -268,7 +268,7 @@ int main(int argc,char **args){
         ierr = VecDestroy(&q);CHKERRQ(ierr);
         ierr = VecDestroy(&qp1);CHKERRQ(ierr);
     }
-    if(1){ // compare against matmult and Ax_b using data (should be exactly equal to OSS equations from python scripts)
+    if(0){ // compare against matmult and Ax_b using data (should be exactly equal to OSS equations from python scripts)
         // init
         Mat A,B;
         Vec b,q,Aq;
@@ -308,6 +308,80 @@ int main(int argc,char **args){
         ierr = VecDestroy(&q);CHKERRQ(ierr);
         ierr = VecDestroy(&Aq);CHKERRQ(ierr);
     }
+    if(0){ // get subvector test and trapz
+        //PetscScalar s[]={-3,-2,-1,0};
+        PetscInt n=202;
+        PetscScalar *s=new PetscScalar[n];
+        for(int i=0; i<n; ++i) s[i]=i;
+        Vec sVec,sVecsub;
+        PSE::Init_Vec(sVec,n);
+        PSE::set_Vec(s,n,sVec);
+        PSE::set_Vec(sVec);
+        PSE::printVecView(sVec);
+
+        // set subvector
+        PSE::set_Vec(sVec,0,101,sVecsub);
+
+        // trapz
+        PetscScalar trap_value;
+        PSE::trapz(sVecsub,101,trap_value,100); // 5000 as expected! 
+
+        // view
+        PSE::printVecView(sVecsub);
+        PSE::printScalar(&trap_value); // x=5000 as expected!
+
+        // destroy
+        //VecRestoreSubVector(sVec,is,&sVecsub);
+        ierr = VecDestroy(&sVec);CHKERRQ(ierr);
+        ierr = VecDestroy(&sVecsub);CHKERRQ(ierr);
+        delete[] s;
+        //delete[] idx;
+        //ierr = ISDestroy(&is);CHKERRQ(ierr);
+
+    }
+    if(1){ // advance q one step, and check growth, and iterate on alpha
+        // init
+        Mat A,B;
+        Vec b,q,qp1;
+        PetscScalar Re=6000.,rho=1.,alpha,m=1.,omega=0.27;
+        PetscInt ny=101,nz=6;
+        PetscScalar y[ny],z[nz];
+        PetscScalar hx=0.01;
+        PetscInt dim=ny*nz*4;
+        PSE::Init_Vec(q,dim);
+        // read in and set matrices
+        PSE::Read_q(q,y,ny,z,nz,alpha,"../OrrSommerfeld_and_primitive/uvwP_101");// read in q,y,z,alpha from binary files
+        PSE::set_A_and_B(y,ny,z,nz,A,B,Re,rho,alpha,m,omega);// set A,b 
+        PSE::set_BCs(A,B,ny,nz);        // set BCs in A and B
+        PSE::set_Euler_Advance(hx,A,B); // set up Euler advancing matrices
+        PSE::Init_Vec(b,dim);           // set b vector from b=B*q
+        PSE::set_b(B,q,b);              //B*q->b
+        // solve Ax=b
+        PSE::set_Vec(b); // assemble b
+        PSE::Ax_b(A,qp1,b,dim);
+        // view solution
+        //PSE::printVecView(q);
+        //PSE::printVecView(qp1);
+        // extract a part of q
+        Vec qsub;
+        PSE::set_Vec(qp1,0,ny,qsub);
+        PSE::printVecView(qsub);
+        Vec qsub_conj;
+        PSE::Init_Vec(qsub_conj,ny);
+        VecCopy(qsub,qsub_conj);
+
+        // trapezoidal rule
+        PetscScalar trap_value;
+        PSE::trapz(qsub,ny,trap_value,2); //2 is height of channel
+        PSE::printScalar(&trap_value);
+        // free memory
+        ierr = MatDestroy(&A);CHKERRQ(ierr);
+        ierr = MatDestroy(&B);CHKERRQ(ierr);
+        ierr = VecDestroy(&b);CHKERRQ(ierr);
+        ierr = VecDestroy(&q);CHKERRQ(ierr);
+        ierr = VecDestroy(&qp1);CHKERRQ(ierr);
+    }
+
 
     ierr = PetscFinalize();
     return ierr;

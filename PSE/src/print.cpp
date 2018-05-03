@@ -1,10 +1,12 @@
+#define ANSI_COLOR_CYAN    "\x1b[36m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
 #include "print.hpp"
 namespace PSE
 {
     PetscErrorCode printScalar( const PetscScalar x[], const PetscInt n,char const name[],PetscViewer viewer){
         PetscErrorCode ierr;
         if (n==1){
-            ierr = PetscPrintf(PETSC_COMM_WORLD,"  %s = %e + %e i\n",name,(double)PetscRealPart(x[0]),PetscImaginaryPart(x[0]));CHKERRQ(ierr);
+            ierr = PetscPrintf(PETSC_COMM_WORLD,ANSI_COLOR_CYAN "  %s = %e + %e i\n" ANSI_COLOR_RESET,name,(double)PetscRealPart(x[0]),PetscImaginaryPart(x[0]));CHKERRQ(ierr);
         }
         else{
             PetscScalarView(n,x,viewer);

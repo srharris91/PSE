@@ -22,6 +22,27 @@ namespace PSE{
     PetscInt set_Vec(
             Vec &b ///< array to assemble on all processors
             );
+    /**
+     * \brief set a vector from PetscScalar to PETSc Vec in location n
+     * \return 0 if successful
+     *
+     */
+    PetscInt set_Vec(
+            const PetscScalar &bin,   ///< scalar to set into Vec
+            const PetscInt &n,        ///< location to put into Vec
+            Vec &b                    ///< Vec to SetValues
+            );
+    /**
+     * \brief set a subvector from larger vector from low to hi indices
+     * \return 0 if successful
+     *
+     */
+    PetscInt set_Vec(
+            const Vec &inVec,   ///< larger vec to copy values from
+            const PetscInt &low,        ///< lower bound
+            const PetscInt &hi,        ///< upper bound
+            Vec &b                    ///< Vec to SetValues and output
+            );
 }
 
 
