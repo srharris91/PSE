@@ -56,7 +56,7 @@ namespace PSE{
             Vec &subVec
             ){
         // init subvec
-        Init_Vec(subVec,hi-low);
+        //Init_Vec(subVec,hi-low);
         // range for inVec
         PetscInt low_local,high_local;
         VecGetOwnershipRange(inVec,&low_local,&high_local);

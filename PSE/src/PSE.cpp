@@ -362,18 +362,12 @@ int main(int argc,char **args){
         // view solution
         //PSE::printVecView(q);
         //PSE::printVecView(qp1);
-        // extract a part of q
-        Vec qsub;
-        PSE::set_Vec(qp1,0,ny,qsub);
-        PSE::printVecView(qsub);
-        Vec qsub_conj;
-        PSE::Init_Vec(qsub_conj,ny);
-        VecCopy(qsub,qsub_conj);
-
-        // trapezoidal rule
-        PetscScalar trap_value;
-        PSE::trapz(qsub,ny,trap_value,2); //2 is height of channel
-        PSE::printScalar(&trap_value);
+        // closure?
+        PetscScalar I;
+        PetscScalar Ialpha = alpha*hx;
+        PSE::update_Closure(q,qp1,ny,nz,hx,Ialpha,alpha);
+        PSE::printVecView(q);
+        PSE::printVecView(qp1);
         // free memory
         ierr = MatDestroy(&A);CHKERRQ(ierr);
         ierr = MatDestroy(&B);CHKERRQ(ierr);

@@ -1,0 +1,78 @@
+#include "update_Closure.hpp"
+#include "calc_Closure.hpp"
+#include "Init_Vec.hpp"
+#include "set_Vec.hpp"
+#include "trapz.hpp"
+#include "print.hpp"
+namespace PSE
+{
+    int update_Closure(
+            const Vec &q,
+            Vec &qp1,
+            const PetscInt &ny,
+            const PetscInt &nz,
+            const PetscScalar &dx,
+            PetscScalar &Ialpha,
+            PetscScalar &alpha,
+            const PetscScalar &tol,
+            const PetscScalar &Deltax
+            ){ 
+        PetscInt dim = 4*ny*nz;
+
+        PetscScalar Ialpha_orig = Ialpha;
+        PetscScalar alpha_i = alpha; // original alpha from last step (used for trapz integration)
+        Vec q_physical; // physical type q=\hat{q} exp(...)
+        Init_Vec(q_physical,dim);
+
+        VecCopy(qp1,q_physical);
+        VecScale(q_physical,PetscExpScalar( PETSC_i*(Ialpha_orig + (dx*(alpha_i+alpha)/2.))));
+        set_Vec(q_physical); // assemble final
+
+        // check closure
+        PetscScalar closure_value;
+        calc_Closure(q,qp1,ny,nz,closure_value);
+        printScalar(&closure_value);
+        
+        Vec q2,qsub;
+        Init_Vec(q2,dim);
+        Init_Vec(qsub,ny);
+        while(
+                PetscAbsReal(PetscRealPart(closure_value))        >= PetscRealPart(tol) 
+                || 
+                PetscAbsReal(PetscImaginaryPart(closure_value))   >= PetscImaginaryPart(tol)){
+            // update alpha
+            VecCopy(qp1,q2);
+            VecAbs(q2);
+            VecPow(q2,2.);
+            PetscScalar q2_int=0,trap_value;
+            int zi=0; // currently integrate over just one zi plane.... TODO
+            for (int vari=0; vari<4; ++vari){
+                PetscInt row_eq = (4*zi + vari)*ny;
+                set_Vec(q2,row_eq,row_eq+ny,qsub);
+                trapz(qsub,ny,trap_value,Deltax);
+                q2_int += trap_value;
+            }
+            alpha = alpha -((PETSC_i/dx) * (closure_value)/(q2_int));
+
+            // update qp1
+            VecCopy(q_physical,qp1); // qp1 = q_physical
+            VecScale(qp1,PetscExpScalar( -1.*PETSC_i*(Ialpha_orig + (dx*(alpha_i+alpha)/2.))));
+            
+
+
+
+            calc_Closure(q,qp1,ny,nz,closure_value);
+            PetscPrintf(PETSC_COMM_WORLD,"closure iteration alpha = %g + %gi",PetscRealPart(alpha),PetscImaginaryPart(alpha));
+            printScalar(&closure_value);
+        }
+
+        // free memory
+        PetscErrorCode ierr;
+        ierr = VecDestroy(&q_physical); CHKERRQ(ierr);
+        ierr = VecDestroy(&q2); CHKERRQ(ierr);
+        ierr = VecDestroy(&qsub); CHKERRQ(ierr);
+
+
+        return 0;
+    }
+}

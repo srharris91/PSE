@@ -59,5 +59,6 @@
 #include "set_Euler_Advance.hpp"
 #include "trapz.hpp"
 #include "calc_Closure.hpp"
+#include "update_Closure.hpp"
 
 #endif
