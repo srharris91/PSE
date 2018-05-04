@@ -14,7 +14,7 @@ namespace PSE
             const PetscScalar &dx,
             PetscScalar &Ialpha,
             PetscScalar &alpha,
-            const PetscScalar &tol,
+            const PetscReal &tol,
             const PetscScalar &Deltax
             ){ 
         PetscInt dim = 4*ny*nz;
@@ -31,15 +31,16 @@ namespace PSE
         // check closure
         PetscScalar closure_value;
         calc_Closure(q,qp1,ny,nz,closure_value);
-        printScalar(&closure_value);
+        printScalar(&closure_value,1,"Closure");
         
         Vec q2,qsub;
         Init_Vec(q2,dim);
         Init_Vec(qsub,ny);
+        PetscInt iter=0;
         while(
-                PetscAbsReal(PetscRealPart(closure_value))        >= PetscRealPart(tol) 
+                PetscAbsReal(PetscRealPart(closure_value))        >= tol
                 || 
-                PetscAbsReal(PetscImaginaryPart(closure_value))   >= PetscImaginaryPart(tol)){
+                PetscAbsReal(PetscImaginaryPart(closure_value))   >= tol){
             // update alpha
             VecCopy(qp1,q2);
             VecAbs(q2);
@@ -62,9 +63,12 @@ namespace PSE
 
 
             calc_Closure(q,qp1,ny,nz,closure_value);
-            PetscPrintf(PETSC_COMM_WORLD,"closure iteration alpha = %g + %gi",PetscRealPart(alpha),PetscImaginaryPart(alpha));
-            printScalar(&closure_value);
+            iter++;
+            PetscPrintf(PETSC_COMM_WORLD,"closure iteration %i \n",iter);
+            printScalar(&alpha,1,"alpha");
+            printScalar(&closure_value,1,"Closure");
         }
+        Ialpha=Ialpha_orig + (dx*(alpha_i+alpha)/2.);
 
         // free memory
         PetscErrorCode ierr;

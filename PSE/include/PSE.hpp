@@ -41,6 +41,7 @@
 #include <petscsys.h>
 #include <stdio.h>
 #include <iostream>
+#include <string>
 
 #include "base_flow.hpp"
 #include "Ax_b.hpp"

@@ -351,23 +351,34 @@ int main(int argc,char **args){
         PSE::Init_Vec(q,dim);
         // read in and set matrices
         PSE::Read_q(q,y,ny,z,nz,alpha,"../OrrSommerfeld_and_primitive/uvwP_101");// read in q,y,z,alpha from binary files
-        PSE::set_A_and_B(y,ny,z,nz,A,B,Re,rho,alpha,m,omega);// set A,b 
-        PSE::set_BCs(A,B,ny,nz);        // set BCs in A and B
-        PSE::set_Euler_Advance(hx,A,B); // set up Euler advancing matrices
-        PSE::Init_Vec(b,dim);           // set b vector from b=B*q
-        PSE::set_b(B,q,b);              //B*q->b
-        // solve Ax=b
-        PSE::set_Vec(b); // assemble b
-        PSE::Ax_b(A,qp1,b,dim);
-        // view solution
-        //PSE::printVecView(q);
-        //PSE::printVecView(qp1);
-        // closure?
-        PetscScalar I;
-        PetscScalar Ialpha = alpha*hx;
-        PSE::update_Closure(q,qp1,ny,nz,hx,Ialpha,alpha);
+        VecSetValue(q,ny+6,0.00001,ADD_VALUES);// add a little v disturbance
+        PSE::set_Vec(q); // assemble again
         PSE::printVecView(q);
-        PSE::printVecView(qp1);
+        for(int i=0; i<15; ++i){
+            PSE::set_A_and_B(y,ny,z,nz,A,B,Re,rho,alpha,m,omega);// set A,b 
+            PSE::set_BCs(A,B,ny,nz);        // set BCs in A and B
+            PSE::set_Euler_Advance(hx,A,B); // set up Euler advancing matrices
+            PSE::Init_Vec(b,dim);           // set b vector from b=B*q
+            PSE::set_b(B,q,b);              //B*q->b
+            // solve Ax=b
+            PSE::set_Vec(b); // assemble b
+            PSE::Ax_b(A,qp1,b,dim);
+            // view solution
+            //PSE::printVecView(q);
+            //PSE::printVecView(qp1);
+            // closure?
+            PetscScalar I;
+            PetscScalar Ialpha = alpha*hx;
+            PSE::update_Closure(q,qp1,ny,nz,hx,Ialpha,alpha);
+            PSE::printVecView(qp1);
+            VecCopy(qp1,q);
+            PSE::set_Vec(q); //assemble
+            char filename[100];
+            sprintf(filename,"printVecq%d.txt",i);
+            PSE::printVecASCII(q  ,filename);
+        }
+        PSE::printVecASCII(q  ,"printVecq.txt");
+        PSE::printVecASCII(qp1,"printVecqp1.txt");
         // free memory
         ierr = MatDestroy(&A);CHKERRQ(ierr);
         ierr = MatDestroy(&B);CHKERRQ(ierr);

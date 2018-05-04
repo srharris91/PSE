@@ -11,10 +11,10 @@ namespace PSE{
             Vec &qp1,                           ///< input array from previous iteration \f[ \hat\textbf{q}_{i+1} \f]
             const PetscInt &ny,                 ///< size of arrays in y dimension
             const PetscInt &nz,                 ///< size of arrays in z dimension
-            const PetscScalar &dx,                 ///< x marching step distance
+            const PetscScalar &dx,              ///< x marching step distance
             PetscScalar &Ialpha,                ///< integral value from previous step \f[ \int_0^{x_i} \alpha(\xi) d\xi \f]
             PetscScalar &alpha,                 ///< initial alpha value of eigenfunction (constant from last step initially)
-            const PetscScalar &tol=1e-16+1e-18*PETSC_i, ///< tolerance on norm equation
+            const PetscReal &tol=1e-6,         ///< tolerance on norm equation
             const PetscScalar &Deltax=2         ///< height of channel (default to 2)
             );
 
