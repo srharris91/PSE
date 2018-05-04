@@ -10,7 +10,7 @@ namespace PSE{
             Vec &q,             ///< Vector to integrate
             const PetscInt &n,  ///< size of vector
             PetscScalar &I,    ///< output value of integration 
-            const PetscScalar &Deltax=1. ///< Domain size (b-a) in \f[ I = \int_a^b f(x) dx\f]
+            const PetscScalar &Deltax=1. ///< Domain size (b-a) in \f$ I = \int_a^b f(x) dx\f$
             );
 
 

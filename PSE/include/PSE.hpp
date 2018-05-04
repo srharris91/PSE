@@ -7,6 +7,7 @@
  * \section Info Information
  * This code will compute the Parabolic Stability Equation (PSE) for various flows.  
  * This will read in the Orr-Sommerfeld solution from a python script, and will march it forward in \f$x\f$.
+ * \image html Diagram_closure.png "Solution Procedure" width=10cm
  *
  * All of the code is contained in the namespace PSE.  
  *
