@@ -4,7 +4,7 @@ CFLAGS	         =
 FFLAGS	         =
 CPPFLAGS         = -std=c++14 -I${INCLUDE_DIR}
 FPPFLAGS         =
-NP               = 4
+NP               = 1
 SRCFILES         = $(wildcard ./src/*cpp)
 OBJFILES         = $(patsubst %.cpp,%.o,${SRCFILES})
 EXECUTABLE       = PSE
@@ -25,7 +25,7 @@ exPSE: ${OBJFILES}
 	-@${RM} ${OBJFILES}
 
 runPSE:
-	${MPIEXEC} -n ${NP} ./PSE -pc_type none -ksp_type fgmres -ksp_gmres_cgs_refinement_type refine_always
+	${MPIEXEC} -n ${NP} ./PSE -pc_type none -ksp_type fgmres -ksp_gmres_cgs_refinement_type refine_always -ksp_rtol 1e-8 -ksp_converged_reason
 	-@#${MPIEXEC} -n ${NP} ./PSE -ksp_converged_reason -ksp_monitor_true_residual -pc_type none -ksp_type fgmres -ksp_gmres_cgs_refinement_type refine_always -draw_pause -1 
 	-@#-ksp_rtol 1e-16
 	-@#-ksp_rtol 1e-8 

@@ -17,13 +17,14 @@ namespace PSE
             const PetscReal &tol,
             const PetscScalar &Deltax
             ){ 
+        // initialize
         PetscInt dim = 4*ny*nz;
-
         PetscScalar Ialpha_orig = Ialpha;
         PetscScalar alpha_i = alpha; // original alpha from last step (used for trapz integration)
+
+        // set q_physical
         Vec q_physical; // physical type q=\hat{q} exp(...)
         Init_Vec(q_physical,dim);
-
         VecCopy(qp1,q_physical);
         VecScale(q_physical,PetscExpScalar( PETSC_i*(Ialpha_orig + (dx*(alpha_i+alpha)/2.))));
         set_Vec(q_physical); // assemble final
@@ -37,10 +38,14 @@ namespace PSE
         Init_Vec(q2,dim);
         Init_Vec(qsub,ny);
         PetscInt iter=0;
-        while(
-                PetscAbsReal(PetscRealPart(closure_value))        >= tol
-                || 
-                PetscAbsReal(PetscImaginaryPart(closure_value))   >= tol){
+        //while(
+                //(
+                 //PetscAbsReal(PetscRealPart(closure_value))        >= tol
+                 //|| 
+                 //PetscAbsReal(PetscImaginaryPart(closure_value))   >= tol
+                //)
+                //){
+        for (int i=0; i<100; ++i){
             // update alpha
             VecCopy(qp1,q2);
             VecAbs(q2);
@@ -53,20 +58,27 @@ namespace PSE
                 trapz(qsub,ny,trap_value,Deltax);
                 q2_int += trap_value;
             }
-            alpha = alpha -((PETSC_i/dx) * (closure_value)/(q2_int));
+            PetscScalar delta_alpha = - ((PETSC_i/dx) * (closure_value)/(q2_int));
+            alpha = alpha + delta_alpha;
 
             // update qp1
             VecCopy(q_physical,qp1); // qp1 = q_physical
+            set_Vec(qp1);
             VecScale(qp1,PetscExpScalar( -1.*PETSC_i*(Ialpha_orig + (dx*(alpha_i+alpha)/2.))));
-            
+            set_Vec(qp1);
 
-
-
+            // check closure terms
             calc_Closure(q,qp1,ny,nz,closure_value);
+
+            // update iteration and print to screen
             iter++;
             PetscPrintf(PETSC_COMM_WORLD,"closure iteration %i \n",iter);
             printScalar(&alpha,1,"alpha");
+            printScalar(&delta_alpha,1,"delta_alpha");
             printScalar(&closure_value,1,"Closure");
+            char filename[100];
+            sprintf(filename,"printVecqp1_%d.txt",i);
+            PSE::printVecASCII(qp1  ,filename);
         }
         Ialpha=Ialpha_orig + (dx*(alpha_i+alpha)/2.);
 

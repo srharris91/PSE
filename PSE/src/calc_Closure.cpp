@@ -32,9 +32,10 @@ namespace PSE
         Vec qtqx;
         Init_Vec(qtqx,n);
         VecPointwiseMult(qtqx,qpconj,dq);
+        set_Vec(qtqx);
 
         // integrate
-        I=0;
+        I=0.+0.*PETSC_i;
         // for each variable integrate in y
         // now integrate each in z
         
@@ -44,7 +45,8 @@ namespace PSE
         PetscScalar trap_value;
         //for (int zi=0; zi<nz; ++zi){
         int zi=0; // currently integrate over just one zi plane.... TODO
-        for (int vari=0; vari<4; ++vari){
+        //for (int vari=0; vari<4; ++vari){
+        for (int vari=0; vari<4; ++vari){// just over u
             PetscInt row_eq = (4*zi + vari)*ny;
             set_Vec(qtqx,row_eq,row_eq+ny,qsub);
             trapz(qsub,ny,trap_value,Deltax);

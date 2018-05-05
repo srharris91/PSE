@@ -339,7 +339,7 @@ int main(int argc,char **args){
         //ierr = ISDestroy(&is);CHKERRQ(ierr);
 
     }
-    if(1){ // advance q one step, and check growth, and iterate on alpha
+    if(0){ // advance q one step, and check growth, and iterate on alpha
         // init
         Mat A,B;
         Vec b,q,qp1;
@@ -347,19 +347,20 @@ int main(int argc,char **args){
         PetscScalar Re=2000.,rho=1.,alpha,m=1.,omega=0.3;
         PetscInt ny=101,nz=6;
         PetscScalar y[ny],z[nz];
-        PetscScalar hx=0.01;
+        PetscScalar hx=2.5;
         PetscInt dim=ny*nz*4;
         PSE::Init_Vec(q,dim);
         // read in and set matrices
         PSE::Read_q(q,y,ny,z,nz,alpha,"../OrrSommerfeld_and_primitive/uvwP_101_stable");// read in q,y,z,alpha from binary files
         //VecSetValue(q,ny+6,0.00001,ADD_VALUES);// add a little v disturbance
         PSE::set_Vec(q); // assemble again
-        PSE::printVecView(q);
+        //PSE::printVecView(q);
         char filename[100];
         sprintf(filename,"printVecq0.txt");
         PSE::printVecASCII(q  ,filename);
         PSE::printScalar(&alpha,1,"original alpha");
-        for(int i=1; i<8; ++i){
+        PetscScalar Ialpha = alpha*hx;
+        for(int i=1; i<15; ++i){
             PSE::set_A_and_B(y,ny,z,nz,A,B,Re,rho,alpha,m,omega);// set A,b 
             PSE::set_BCs(A,B,ny,nz);        // set BCs in A and B
             PSE::set_Euler_Advance(hx,A,B); // set up Euler advancing matrices
@@ -372,14 +373,13 @@ int main(int argc,char **args){
             //PSE::printVecView(q);
             //PSE::printVecView(qp1);
             // closure?
-            PetscScalar I;
-            PetscScalar Ialpha = alpha*hx;
             PSE::update_Closure(q,qp1,ny,nz,hx,Ialpha,alpha);
-            PSE::printVecView(qp1);
+            //PSE::printVecView(qp1);
             VecCopy(qp1,q);
             PSE::set_Vec(q); //assemble
             sprintf(filename,"printVecq%d.txt",i);
             PSE::printVecASCII(q  ,filename);
+            PetscPrintf(PETSC_COMM_WORLD,"Marched %d\n",i);
         }
         PSE::printVecASCII(q  ,"printVecq.txt");
         PSE::printVecASCII(qp1,"printVecqp1.txt");
@@ -387,6 +387,44 @@ int main(int argc,char **args){
         ierr = MatDestroy(&A);CHKERRQ(ierr);
         ierr = MatDestroy(&B);CHKERRQ(ierr);
         ierr = VecDestroy(&b);CHKERRQ(ierr);
+        ierr = VecDestroy(&q);CHKERRQ(ierr);
+        ierr = VecDestroy(&qp1);CHKERRQ(ierr);
+    }
+    if(1){ // read in variables and update_Closure step a lot
+        // init
+        Vec q,qp1;
+        //PetscScalar Re=6000.,rho=1.,alpha,m=1.,omega=0.27;
+        PetscScalar Re=2000.,rho=1.,alpha,m=1.,omega=0.3;
+        PetscInt ny=101,nz=6;
+        PetscScalar y[ny],z[nz];
+        PetscScalar hx=2.5;
+        PetscInt dim=ny*nz*4;
+        PSE::Init_Vec(q,dim);
+        PSE::Init_Vec(qp1,dim);
+        // read in and set matrices
+        PSE::Read_q(q,y,ny,z,nz,alpha,"../OrrSommerfeld_and_primitive/uvwP_101_stable");// read in q,y,z,alpha from binary files
+        //VecSetValue(q,ny+6,0.00001,ADD_VALUES);// add a little v disturbance
+        PSE::set_Vec(q); // assemble again
+        //PSE::printVecView(q);
+        char filename[100];
+        sprintf(filename,"printVecq0.txt");
+        PSE::printVecASCII(q  ,filename);
+        PSE::printScalar(&alpha,1,"original alpha");
+        PetscScalar Ialpha = alpha*hx;
+
+        // closure updates
+        VecCopy(q,qp1); // qp1=q
+        PSE::set_Vec(qp1);
+        //VecSetValue(qp1,6,1e-10,ADD_VALUES);// add a little v disturbance
+        VecScale(qp1,1.+1e-1);
+        //VecSetValue(qp1,7,-1e-10,ADD_VALUES);// add a little v disturbance
+        PSE::set_Vec(qp1);
+        PSE::update_Closure(q,qp1,ny,nz,hx,Ialpha,alpha);
+        //PSE::printVecView(qp1);
+        sprintf(filename,"printVecq%d.txt",1);
+        PSE::printVecASCII(qp1  ,filename);
+
+        // free memory
         ierr = VecDestroy(&q);CHKERRQ(ierr);
         ierr = VecDestroy(&qp1);CHKERRQ(ierr);
     }
