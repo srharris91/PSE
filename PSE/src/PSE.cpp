@@ -227,7 +227,7 @@ int main(int argc,char **args){
         PetscScalar Re=6000.,rho=1.,alpha,m=1.,omega=0.27;
         PetscInt ny=101,nz=6;
         PetscScalar y[ny],z[nz];
-        PetscScalar hx=0.01;
+        PetscScalar hx=2.5;
         PetscInt dim=ny*nz*4;
         PSE::Init_Vec(q,dim);
         // read in q,y,z,alpha from binary files
@@ -415,8 +415,8 @@ int main(int argc,char **args){
         // closure updates
         VecCopy(q,qp1); // qp1=q
         PSE::set_Vec(qp1);
-        //VecSetValue(qp1,6,1e-10,ADD_VALUES);// add a little v disturbance
-        VecScale(qp1,1.+1e-1);
+        VecSetValue(qp1,6,1e-5,ADD_VALUES);// add a little v disturbance
+        //VecScale(qp1,1.+1e-1);
         //VecSetValue(qp1,7,-1e-10,ADD_VALUES);// add a little v disturbance
         PSE::set_Vec(qp1);
         PSE::update_Closure(q,qp1,ny,nz,hx,Ialpha,alpha);

@@ -28,6 +28,7 @@ namespace PSE
         VecCopy(qp1,q_physical);
         VecScale(q_physical,PetscExpScalar( PETSC_i*(Ialpha_orig + (dx*(alpha_i+alpha)/2.))));
         set_Vec(q_physical); // assemble final
+        printVecASCII(q_physical,"q_physical_before.txt");
 
         // check closure
         PetscScalar closure_value;
@@ -45,7 +46,7 @@ namespace PSE
                  //PetscAbsReal(PetscImaginaryPart(closure_value))   >= tol
                 //)
                 //){
-        for (int i=0; i<100; ++i){
+        for (int i=0; i<75; ++i){
             // update alpha
             VecCopy(qp1,q2);
             VecAbs(q2);
@@ -79,6 +80,17 @@ namespace PSE
             char filename[100];
             sprintf(filename,"printVecqp1_%d.txt",i);
             PSE::printVecASCII(qp1  ,filename);
+            
+            // output q_physical again... should be the same as before...
+
+            Vec q_physical2; // physical type q=\hat{q} exp(...)
+            Init_Vec(q_physical2,dim);
+            VecCopy(qp1,q_physical2);
+            VecScale(q_physical2,PetscExpScalar( PETSC_i*(Ialpha_orig + (dx*(alpha_i+alpha)/2.))));
+            set_Vec(q_physical2); // assemble final
+            char filename2[100];
+            sprintf(filename2,"q_physical_after_%d.txt",i);
+            printVecASCII(q_physical2,filename2);
         }
         Ialpha=Ialpha_orig + (dx*(alpha_i+alpha)/2.);
 
