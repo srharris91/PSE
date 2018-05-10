@@ -366,8 +366,8 @@ int main(int argc,char **args){
             PSE::set_Euler_Advance(hx,A,B); // set up Euler advancing matrices
             PSE::Init_Vec(b,dim);           // set b vector from b=B*q
             PSE::set_b(B,q,b);              //B*q->b
-            // solve Ax=b
             PSE::set_Vec(b); // assemble b
+            // solve Ax=b
             PSE::Ax_b(A,qp1,b,dim);
             // view solution
             //PSE::printVecView(q);
