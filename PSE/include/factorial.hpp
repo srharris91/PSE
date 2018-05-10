@@ -4,10 +4,11 @@
 namespace PSE{
     /**
      * \brief calculate the factorial of an integer
+     * \return n!
      *
      */
     unsigned factorial(
-            unsigned n          ///< input integer to perform factorial on
+            unsigned n          ///< [out] input integer to perform factorial on
             );
 }
 #endif

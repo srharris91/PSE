@@ -9,10 +9,10 @@ namespace PSE
      * \return 0 if successful
      */
     PetscInt Ax_b(
-            const PetscScalar* const* Ain,  ///< input of 2D \f$A\f$ matrix in \f$Ax=b\f$ (must be dynamic pointer to pointer)
-            Vec &x,             ///< vector of \f$x\f$ in \f$Ax=b\f$
-            const PetscScalar bin[],  ///< vector of \f$b\f$ in \f$Ax=b\f$
-            const PetscInt &n          ///< n size of vectors or nxn matrix \f$A\f$
+            const PetscScalar* const* Ain,  ///< [in] input of 2D \f$A\f$ matrix in \f$Ax=b\f$ (must be dynamic pointer to pointer)
+            Vec &x,                     ///< [in,out] vector of \f$x\f$ in \f$Ax=b\f$ (already initialized)
+            const PetscScalar bin[],    ///< [in] vector of \f$b\f$ in \f$Ax=b\f$
+            const PetscInt &n           ///< [in] n size of vectors or nxn matrix \f$A\f$
             );
 
     /** 
@@ -20,10 +20,10 @@ namespace PSE
      * \return 0 if successful
      */
     PetscInt Ax_b(
-            const Mat &A,              ///< input of A matrix in \f$Ax=b\f$
-            Vec &x,             ///< vector of \f$x\f$ in \f$Ax=b\f$
-            const Vec &b,              ///< vector of \f$b\f$ in \f$Ax=b\f$
-            const PetscInt &n          ///< n size of vectors or nxn matrix \f$A\f$
+            const Mat &A,               ///< [in] input of A matrix in \f$Ax=b\f$
+            Vec &x,                     ///< [in,out] vector of \f$x\f$ in \f$Ax=b\f$ (already initialized)
+            const Vec &b,               ///< [in] vector of \f$b\f$ in \f$Ax=b\f$
+            const PetscInt &n           ///< [in] n size of vectors or nxn matrix \f$A\f$
             );
 }
 #endif

@@ -62,7 +62,7 @@ namespace PSE
         PetscErrorCode ierr;
         
         // Create parallel vectors x
-        Init_Vec(x,n);
+        //Init_Vec(x,n);
         //ierr = VecDuplicate(b,&x);CHKERRQ(ierr);
         //ierr = VecDuplicate(x,&b);CHKERRQ(ierr);
 

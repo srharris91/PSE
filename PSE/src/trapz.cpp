@@ -5,7 +5,7 @@
 
 namespace PSE{
     int trapz(
-            Vec &q,
+            const Vec &q,
             const PetscInt &n,
             PetscScalar &I,
             const PetscScalar &Deltay 
@@ -37,7 +37,7 @@ namespace PSE{
         return 0;
     }
     int trapz(
-            Vec &q,
+            const Vec &q,
             const PetscInt &ny,
             const PetscInt &nz,
             PetscScalar &I,

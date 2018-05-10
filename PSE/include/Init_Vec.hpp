@@ -7,8 +7,8 @@ namespace PSE{
      * \return 0 if successful
      */
     int Init_Vec(
-            Vec &x,         ///< x vector to initialize in MPI
-            const PetscInt &n      ///< size of vector
+            Vec &x,         ///< [out] x vector to initialize in MPI (uninitialized)
+            const PetscInt &n      ///< [in] size of vector
             );
 }
 

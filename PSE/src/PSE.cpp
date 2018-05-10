@@ -350,8 +350,11 @@ int main(int argc,char **args){
         PetscScalar hx=2.5;
         PetscInt dim=ny*nz*4;
         PSE::Init_Vec(q,dim);
+        PSE::Init_Vec(qp1,dim);
         // read in and set matrices
         PSE::Read_q(q,y,ny,z,nz,alpha,"../OrrSommerfeld_and_primitive/uvwP_101_stable");// read in q,y,z,alpha from binary files
+        VecCopy(q,qp1); // qp1=q for initial guess
+
         //VecSetValue(q,ny+6,0.00001,ADD_VALUES);// add a little v disturbance
         PSE::set_Vec(q); // assemble again
         //PSE::printVecView(q);

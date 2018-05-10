@@ -10,10 +10,10 @@ namespace PSE
      * \return 0 if successful
      */
     int base_flow(
-            PetscScalar U[],    ///< velocity along channel axis
-            PetscScalar Uy[],   ///< first derivative of velocity
-            const PetscScalar y[],    ///< input y vector (usually linspace(-1,1,n)
-            const PetscInt &n              ///< size of vectors
+            PetscScalar U[],        ///< [out] velocity along channel axis
+            PetscScalar Uy[],       ///< [out] first derivative of velocity
+            const PetscScalar y[],  ///< [in] input y vector (usually linspace(-1,1,n)
+            const PetscInt &n       ///< [in] size of vectors
             );
     /** 
      * \brief set plane channel flow velocity variables U, U' and U''
@@ -21,10 +21,10 @@ namespace PSE
      * \return 0 if successful
      */
     int base_flow(
-            Mat &U,    ///< velocity along channel axis
-            Mat &Uy,   ///< first derivative of velocity
-            const PetscScalar y[],    ///< input y vector (usually linspace(-1,1,n)
-            const PetscInt &n              ///< size of vectors
+            Mat &U,                 ///< [out] velocity along channel axis (uninitialized)
+            Mat &Uy,                ///< [out] first derivative of velocity (uninitialized)
+            const PetscScalar y[],  ///< [in] input y vector (usually linspace(-1,1,n)
+            const PetscInt &n       ///< [in] size of vectors
             );
             }
 #endif

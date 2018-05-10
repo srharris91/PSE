@@ -9,9 +9,9 @@ namespace PSE
      *
      */
     PetscInt set_Euler_Advance(
-            const PetscScalar &hx,  ///< delta x distance
-            Mat &A,                 ///< A matrix set from set_A_and_B
-            Mat &B                  ///< B matrix set from set_A_and_B
+            const PetscScalar &hx,  ///< [in] delta x distance
+            Mat &A,                 ///< [in,out] A matrix set from set_A_and_B (already initialized)
+            Mat &B                  ///< [in,out] B matrix set from set_A_and_B (already initialized)
             );
 }
 

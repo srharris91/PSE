@@ -3,7 +3,11 @@
 #include "print.hpp"
 namespace PSE
 {
-    PetscErrorCode printScalar( const PetscScalar x[], const PetscInt n,char const name[],PetscViewer viewer){
+    PetscErrorCode printScalar( 
+            const PetscScalar x[],
+            const PetscInt n,
+            char const name[],
+            const PetscViewer viewer){
         PetscErrorCode ierr;
         if (n==1){
             ierr = PetscPrintf(PETSC_COMM_WORLD,ANSI_COLOR_CYAN "  %s = %e + %e i\n" ANSI_COLOR_RESET,name,(double)PetscRealPart(x[0]),PetscImaginaryPart(x[0]));CHKERRQ(ierr);
@@ -13,7 +17,10 @@ namespace PSE
         }
         return ierr;
     }
-    PetscErrorCode printVec( Vec &x, PetscInt n,char const name[]){
+    PetscErrorCode printVec( 
+            const Vec &x,
+            const PetscInt n,
+            char const name[]){
         PetscErrorCode ierr;
         PetscScalar *xa;
         ierr = VecGetArray(x,&xa);CHKERRQ(ierr);
@@ -24,7 +31,10 @@ namespace PSE
         ierr = VecRestoreArray(x,&xa);CHKERRQ(ierr);
         return ierr;
     }
-    PetscErrorCode printInt( PetscInt x[], PetscInt n,char const name[]){
+    PetscErrorCode printInt( 
+            const PetscInt x[],
+            const PetscInt n,
+            char const name[]){
         PetscErrorCode ierr;
         if (n==1){
             ierr = PetscPrintf(PETSC_COMM_WORLD,"  %s = %i \n",name,(PetscInt)x[0]);CHKERRQ(ierr);
@@ -37,7 +47,10 @@ namespace PSE
         }
         return ierr;
     }
-    void printVecView( Vec &x, char const name[],PetscViewerFormat format){
+    void printVecView( 
+            const Vec &x,
+            char const name[],
+            const PetscViewerFormat format){
         PetscViewer     viewer;
         PetscViewerDrawOpen(PETSC_COMM_WORLD, NULL,NULL, PETSC_DECIDE,PETSC_DECIDE,PETSC_DECIDE,PETSC_DECIDE,&viewer);
         PetscObjectSetName((PetscObject)viewer,name);

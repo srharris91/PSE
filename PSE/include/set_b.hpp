@@ -9,9 +9,9 @@ namespace PSE
      * \return 0 if successful
      */
     PetscInt set_b(
-            const Mat &B,                 ///< B matrix 
-            const Vec &qn,          ///< qn vector to multiply
-            Vec &b                 ///< b Vec (initialized)
+            const Mat &B,          ///< [in] B matrix 
+            const Vec &qn,         ///< [in] qn vector to multiply
+            Vec &b                 ///< [in,out] b Vec (already initialized)
             );
 }
 

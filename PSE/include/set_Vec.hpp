@@ -8,10 +8,10 @@ namespace PSE{
      *
      */
     PetscInt set_Vec(
-            const PetscScalar *bin,   ///< array set on all processors as 1D array
-            const PetscInt &n,        ///< size of n array
-            Vec &b,             ///< Vec to SetValues and output in parallel
-            const PetscBool &parallel=PETSC_TRUE ///< set in parallel
+            const PetscScalar *bin,   ///< [in] array set on all processors as 1D array
+            const PetscInt &n,        ///< [in] size of n array
+            Vec &b,             ///< [in,out] Vec to SetValues and output in parallel (already initialized)
+            const PetscBool &parallel=PETSC_TRUE ///< [in] set in parallel
             );
 
     /**
@@ -20,7 +20,7 @@ namespace PSE{
      *
      */
     PetscInt set_Vec(
-            Vec &b ///< array to assemble on all processors
+            Vec &b ///< [in,out] array to assemble on all processors
             );
     /**
      * \brief set a vector from PetscScalar to PETSc Vec in location n
@@ -28,9 +28,9 @@ namespace PSE{
      *
      */
     PetscInt set_Vec(
-            const PetscScalar &bin,   ///< scalar to set into Vec
-            const PetscInt &n,        ///< location to put into Vec
-            Vec &b                    ///< Vec to SetValues
+            const PetscScalar &bin,   ///< [in] scalar to set into Vec
+            const PetscInt &n,        ///< [in] location to put into Vec
+            Vec &b                    ///< [in,out] Vec to SetValues (already initialized)
             );
     /**
      * \brief set a subvector from larger vector from low to hi indices
@@ -38,10 +38,10 @@ namespace PSE{
      *
      */
     PetscInt set_Vec(
-            const Vec &inVec,   ///< larger vec to copy values from
-            const PetscInt &low,        ///< lower bound
-            const PetscInt &hi,        ///< upper bound
-            Vec &b                    ///< Vec to SetValues and output
+            const Vec &inVec,           ///< [in] larger vec to copy values from
+            const PetscInt &low,        ///< [in] lower bound
+            const PetscInt &hi,        ///< [in] upper bound
+            Vec &b                    ///< [in,out] Vec to SetValues and output (already initialized)
             );
 }
 

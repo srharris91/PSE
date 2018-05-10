@@ -9,10 +9,10 @@ namespace PSE
      * \return 0 if successful
      */
     PetscInt set_BCs(
-            Mat &A,                 ///< A matrix
-            Vec &b,                 ///< b Vec
-            const PetscInt &ny,     ///< size of y array
-            const PetscInt &nz     ///< size of z array
+            Mat &A,                 ///< [in,out] A matrix (already initialized)
+            Vec &b,                 ///< [in,out] b Vec (already initialized)
+            const PetscInt &ny,     ///< [in] size of y array
+            const PetscInt &nz     ///< [in] size of z array
             );
     /** 
      * 
@@ -20,10 +20,10 @@ namespace PSE
      * \return 0 if successful
      */
     PetscInt set_BCs(
-            Mat &A,                 ///< A matrix
-            Mat &B,                 ///< B Matrix
-            const PetscInt &ny,     ///< size of y array
-            const PetscInt &nz     ///< size of z array
+            Mat &A,                 ///< [in,out] A matrix (already initialized)
+            Mat &B,                 ///< [in,out] B Matrix (already initialized)
+            const PetscInt &ny,     ///< [in] size of y array
+            const PetscInt &nz     ///< [in] size of z array
             );
 }
 
