@@ -80,7 +80,7 @@ namespace PSE{
             set_Vec(yi_uvwp,zi,qsub_z); // set integral value into qsub_z vector
         }
         set_Vec(qsub_z);// assemble qsub_z
-        trapz(qsub_z,nz,trap_value,Deltaz); // integrate all values in z direction
+        trapz(qsub_z,nz,I,Deltaz); // integrate all values in z direction
 
 
         VecDestroy(&qsub);

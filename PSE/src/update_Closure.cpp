@@ -15,7 +15,8 @@ namespace PSE
             PetscScalar &Ialpha,
             PetscScalar &alpha,
             const PetscReal &tol,
-            const PetscScalar &Deltax
+            const PetscScalar &Deltay,
+            const PetscScalar &Deltaz
             ){ 
         // initialize
         PetscInt dim = 4*ny*nz;
@@ -39,26 +40,20 @@ namespace PSE
         Init_Vec(q2,dim);
         Init_Vec(qsub,ny);
         PetscInt iter=0;
-        //while(
-                //(
-                 //PetscAbsReal(PetscRealPart(closure_value))        >= tol
-                 //|| 
-                 //PetscAbsReal(PetscImaginaryPart(closure_value))   >= tol
-                //)
-                //){
-        for (int i=0; i<75; ++i){
+        while(
+                (
+                 PetscAbsReal(PetscRealPart(closure_value))        >= tol
+                 || 
+                 PetscAbsReal(PetscImaginaryPart(closure_value))   >= tol
+                )
+                ){
+        //for (int i=0; i<100; ++i){
             // update alpha
             VecCopy(qp1,q2);
             VecAbs(q2);
             VecPow(q2,2.);
-            PetscScalar q2_int=0,trap_value;
-            int zi=0; // currently integrate over just one zi plane.... TODO
-            for (int vari=0; vari<4; ++vari){
-                PetscInt row_eq = (4*zi + vari)*ny;
-                set_Vec(q2,row_eq,row_eq+ny,qsub);
-                trapz(qsub,ny,trap_value,Deltax);
-                q2_int += trap_value;
-            }
+            PetscScalar q2_int;
+            trapz(q2,ny,nz,q2_int,Deltay,Deltaz);
             PetscScalar delta_alpha = - ((PETSC_i/dx) * (closure_value)/(q2_int));
             alpha = alpha + delta_alpha;
 
@@ -73,10 +68,12 @@ namespace PSE
 
             // update iteration and print to screen
             iter++;
+            // output
             PetscPrintf(PETSC_COMM_WORLD,"closure iteration %i \n",iter);
             printScalar(&alpha,1,"alpha");
             printScalar(&delta_alpha,1,"delta_alpha");
             printScalar(&closure_value,1,"Closure");
+            /*
             char filename[100];
             sprintf(filename,"printVecqp1_%d.txt",i);
             PSE::printVecASCII(qp1  ,filename);
@@ -91,6 +88,7 @@ namespace PSE
             char filename2[100];
             sprintf(filename2,"q_physical_after_%d.txt",i);
             printVecASCII(q_physical2,filename2);
+            */
         }
         Ialpha=Ialpha_orig + (dx*(alpha_i+alpha)/2.);
 

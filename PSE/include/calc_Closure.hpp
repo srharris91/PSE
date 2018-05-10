@@ -12,7 +12,8 @@ namespace PSE{
             const PetscInt &ny,                 ///< size of arrays in y dimension
             const PetscInt &nz,                 ///< size of arrays in z dimension
             PetscScalar &I,                     ///< output integral value
-            const PetscScalar &Deltax=2         ///< height of channel (default to 2)
+            const PetscScalar &Deltay=2,        ///< height of channel in y(default to 2)
+            const PetscScalar &Deltaz=1         ///< width of channel in z(default to 1)
             );
 
 }

@@ -339,7 +339,7 @@ int main(int argc,char **args){
         //ierr = ISDestroy(&is);CHKERRQ(ierr);
 
     }
-    if(0){ // advance q one step, and check growth, and iterate on alpha
+    if(1){ // advance q many steps, and check growth, and iterate on alpha
         // init
         Mat A,B;
         Vec b,q,qp1;
@@ -381,8 +381,8 @@ int main(int argc,char **args){
             PSE::printVecASCII(q  ,filename);
             PetscPrintf(PETSC_COMM_WORLD,"Marched %d\n",i);
         }
-        PSE::printVecASCII(q  ,"printVecq.txt");
-        PSE::printVecASCII(qp1,"printVecqp1.txt");
+        //PSE::printVecASCII(q  ,"printVecq.txt");
+        //PSE::printVecASCII(qp1,"printVecqp1.txt");
         // free memory
         ierr = MatDestroy(&A);CHKERRQ(ierr);
         ierr = MatDestroy(&B);CHKERRQ(ierr);
@@ -390,7 +390,8 @@ int main(int argc,char **args){
         ierr = VecDestroy(&q);CHKERRQ(ierr);
         ierr = VecDestroy(&qp1);CHKERRQ(ierr);
     }
-    if(1){ // read in variables and update_Closure step a lot
+    if(0){ // read in variables and update_Closure step a lot
+        // note! Must force many iterations in update_Closure.cpp file for this to print and plot
         // init
         Vec q,qp1;
         //PetscScalar Re=6000.,rho=1.,alpha,m=1.,omega=0.27;
@@ -415,8 +416,8 @@ int main(int argc,char **args){
         // closure updates
         VecCopy(q,qp1); // qp1=q
         PSE::set_Vec(qp1);
-        VecSetValue(qp1,6,1e-5,ADD_VALUES);// add a little v disturbance
-        //VecScale(qp1,1.+1e-1);
+        //VecSetValue(qp1,6,1,ADD_VALUES);// add a little v disturbance
+        VecScale(qp1,1.+1e-1);
         //VecSetValue(qp1,7,-1e-10,ADD_VALUES);// add a little v disturbance
         PSE::set_Vec(qp1);
         PSE::update_Closure(q,qp1,ny,nz,hx,Ialpha,alpha);

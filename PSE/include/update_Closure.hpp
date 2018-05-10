@@ -20,7 +20,8 @@ namespace PSE{
             PetscScalar &Ialpha,                ///< integral value from previous step \f$ \int_0^{x_i} \alpha(\xi) d\xi \f$
             PetscScalar &alpha,                 ///< initial alpha value of eigenfunction (constant from last step initially)
             const PetscReal &tol=1e-7,         ///< tolerance on norm equation
-            const PetscScalar &Deltax=2         ///< height of channel (default to 2)
+            const PetscScalar &Deltay=2,        ///< height of channel in y (default to 2)
+            const PetscScalar &Deltaz=1         ///< width of channel in z(default to 1)
             );
 
 }
