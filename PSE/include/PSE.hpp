@@ -29,7 +29,7 @@
  *
  * \section DownloadSourceCode Download
  * Download PSE Solver source code using following GitHub link:\n
- * <A HREF="https://github.com/srharris91/OrrSommerfeld_Squire.git" TARGET="_top">https://github.com/srharris91/OrrSommerfeld_Squire.git</A>
+ * <A HREF="https://github.com/srharris91/PSE.git" TARGET="_top">https://github.com/srharris91/PSE.git</A>
  *
  * \section PETSc PETSc documentation
  * This documentation contains the doxygen generated files for the PETSc library.  However, PETSc was written and used with a different documentation generator known as Sowing. http://wgropp.cs.illinois.edu/projects/software/sowing/
