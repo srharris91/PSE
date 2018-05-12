@@ -36,6 +36,7 @@ static char help[] = "Solves a linear system in parallel with KSP.\n\n";
 int main(int argc,char **args){
     PetscErrorCode ierr;
     ierr = PetscInitialize(&argc,&args,(char*)0,help);if (ierr) return ierr;
+    PSE::PSE data; // default constructor
     // test Ax=b solver twice
     if (0){
         // init some variables
@@ -134,8 +135,9 @@ int main(int argc,char **args){
     }
     if(0){ // compare against matmult and Ax_b
         // init
-        Mat A,B;
-        Vec b,q,qp1,qexact,bexact;
+        //Mat A,B;
+        //Vec b,q,qp1,qexact,bexact;
+        Vec qexact,bexact;
         PetscScalar none=-1.0;
         PetscReal norm;
         PetscInt ny=10,nz=6;
@@ -146,56 +148,56 @@ int main(int argc,char **args){
         for (PetscInt i=-ny/2; i<ny/2; i++) y[i] = ((PetscScalar)i) / ((PetscScalar) ny);
         for (PetscInt i=0; i<nz; i++) z[i] = ((PetscScalar)i) / ((PetscScalar) nz);
         // set A,b with q=0.5
-        PSE::Init_Vec(q,dim);
+        PSE::Init_Vec(data.q,dim);
         //PSE::Init_Vec(qp1,dim);
-        ierr = VecSet(q,pfive);CHKERRQ(ierr);
-        PSE::set_Vec(q); // assemble
-        PSE::set_A_and_B(y,ny,z,nz,A,B,2000.,1.,1.,1.,1.);
-        PSE::set_Euler_Advance(hx,A,B);
-        PSE::Init_Vec(b,dim);
-        PSE::set_b(B,q,b);
+        ierr = VecSet(data.q,pfive);CHKERRQ(ierr);
+        PSE::set_Vec(data.q); // assemble
+        PSE::set_A_and_B(data);
+        PSE::set_Euler_Advance(data.hx,data.A,data.B);
+        PSE::Init_Vec(data.b,data.dim);
+        PSE::set_b(data.B,data.q,data.b);
         // set BCs
-        PSE::set_BCs(A,b,ny,nz);
+        PSE::set_BCs(data.A,data.b,data.ny,data.nz);
         // set exact q and b
-        PSE::Init_Vec(qexact,dim);
-        PSE::Init_Vec(bexact,dim);
+        PSE::Init_Vec(qexact,data.dim);
+        PSE::Init_Vec(bexact,data.dim);
         ierr = VecSet(qexact,pfive);CHKERRQ(ierr);
         PSE::set_Vec(qexact); // assemble
-        MatMult(A,qexact,bexact);
+        MatMult(data.A,qexact,bexact);
         PSE::set_Vec(bexact);
         // view A,B
-        PSE::printMatView(A);
+        PSE::printMatView(data.A);
         //PSE::printMatASCII(A,"printMatASCII_dense.txt",PETSC_VIEWER_ASCII_DENSE);
         //PSE::printMatASCII(A);
         // solve Ax=b
-        PSE::Ax_b(A,qp1,bexact,dim);
-        PSE::printVecView(qp1);
+        PSE::Ax_b(data.A,data.qp1,bexact,data.dim);
+        PSE::printVecView(data.qp1);
         //PSE::printVecASCII(qp1,"printVecqp1.txt");
         //PSE::printVecASCII(qp1,"printVecqp1_dense.txt",PETSC_VIEWER_ASCII_DENSE);
         PSE::printVecView(qexact);
         // check error
-        ierr = VecAXPY(qp1,none,qexact);CHKERRQ(ierr);
-        ierr = VecNorm(qp1,NORM_2,&norm);CHKERRQ(ierr);
+        ierr = VecAXPY(data.qp1,none,qexact);CHKERRQ(ierr);
+        ierr = VecNorm(data.qp1,NORM_2,&norm);CHKERRQ(ierr);
         ierr = PetscPrintf(PETSC_COMM_WORLD,"Norm of error %g \n\n",(double)norm);CHKERRQ(ierr);
         // free memory
-        ierr = MatDestroy(&A);CHKERRQ(ierr);
-        ierr = MatDestroy(&B);CHKERRQ(ierr);
-        ierr = VecDestroy(&b);CHKERRQ(ierr);
+        ierr = MatDestroy(&data.A);CHKERRQ(ierr);
+        ierr = MatDestroy(&data.B);CHKERRQ(ierr);
+        ierr = VecDestroy(&data.b);CHKERRQ(ierr);
         ierr = VecDestroy(&bexact);CHKERRQ(ierr);
-        ierr = VecDestroy(&q);CHKERRQ(ierr);
-        ierr = VecDestroy(&qp1);CHKERRQ(ierr);
+        ierr = VecDestroy(&data.q);CHKERRQ(ierr);
+        ierr = VecDestroy(&data.qp1);CHKERRQ(ierr);
         ierr = VecDestroy(&qexact);CHKERRQ(ierr);
     }
     if(0){ // read in eig-value, eig-vectors, y and z
         // init
-        Vec q;
+        //Vec q;
         PetscScalar alpha;
         PetscInt ny=201,nz=6;
         PetscScalar y[ny],z[nz];
         PetscInt dim=ny*nz*4;
 
         // linspace y,z
-        PSE::Init_Vec(q,dim);
+        PSE::Init_Vec(data.q,dim);
         if (0){ // create y and z from linspace
             PetscScalar ay=-1.,by=1.;   // [a,b] for y vector
             PetscScalar az=0.,bz=1.;    // [a,b] for z vector
@@ -207,45 +209,46 @@ int main(int argc,char **args){
             for (i=0,val=az; i<nz; i++,val+=dz) z[i] = val;
         }
         else{// read from files (including y and z
-            PSE::Read_q(q,y,ny,z,nz,alpha);
+            PSE::Read_q(data.q,y,ny,z,nz,alpha);
         }
         //PetscPrintf(PETSC_COMM_WORLD,"alpha = %g + %g i",alpha.real(),alpha.imag());
         PetscPrintf(PETSC_COMM_WORLD,"\noutput:\n");
         PSE::printScalar(&alpha);
         PSE::printScalar(y,ny);
         PSE::printScalar(z,nz);
-        PSE::printVecView(q);
+        PSE::printVecView(data.q);
         //PSE::printVecASCII(q);
         // free memory
         //ierr = MatDestroy(&A);CHKERRQ(ierr);
-        ierr = VecDestroy(&q);CHKERRQ(ierr);
+        ierr = VecDestroy(&data.q);CHKERRQ(ierr);
     }
     if(0){ // advance q one step, and check growth
         // init
-        Mat A,B;
-        Vec b,q,qp1;
+        //Mat A,B;
+        //Vec b,q,qp1;
         PetscScalar Re=6000.,rho=1.,alpha,m=1.,omega=0.27;
+        data.Re=Re;
         PetscInt ny=101,nz=6;
         PetscScalar y[ny],z[nz];
         PetscScalar hx=2.5;
         PetscInt dim=ny*nz*4;
-        PSE::Init_Vec(q,dim);
+        PSE::Init_Vec(data.q,dim);
         // read in q,y,z,alpha from binary files
-        PSE::Read_q(q,y,ny,z,nz,alpha,"../OrrSommerfeld_and_primitive/uvwP_101");
+        PSE::Read_q(data.q,data.y,data.ny,data.z,data.nz,data.alpha,"../OrrSommerfeld_and_primitive/uvwP_101");
         //PSE::printVecView(q);
         //PSE::printScalar(y,ny);
         //PSE::Read_q(q,y,ny,z,nz,alpha);
         PetscPrintf(PETSC_COMM_WORLD,"\noutput:\n");
         PSE::printScalar(&alpha);
         // set A,b 
-        PSE::set_A_and_B(y,ny,z,nz,A,B,Re,rho,alpha,m,omega);
+        PSE::set_A_and_B(data);
         // set BCs in A and B
-        PSE::set_BCs(A,B,ny,nz);
+        PSE::set_BCs(data.A,data.B,data.ny,data.nz);
         // set up Euler advancing matrices
-        PSE::set_Euler_Advance(hx,A,B);
+        PSE::set_Euler_Advance(data.hx,data.A,data.B);
         // set b vector from b=B*q
-        PSE::Init_Vec(b,dim);
-        PSE::set_b(B,q,b); //B*q->b
+        PSE::Init_Vec(data.b,dim);
+        PSE::set_b(data.B,data.q,data.b); //B*q->b
         // set BCs alternate BC setting
         //PSE::set_BCs(A,b,ny,nz);
         // view A
@@ -253,59 +256,61 @@ int main(int argc,char **args){
         //PSE::printMatASCII(A,"printMatASCII_dense.txt",PETSC_VIEWER_ASCII_DENSE);
         //PSE::printMatASCII(A);
         // solve Ax=b
-        PSE::set_Vec(b); // assemble b
-        PSE::Ax_b(A,qp1,b,dim);
+        PSE::set_Vec(data.b); // assemble b
+        PSE::Ax_b(data.A,data.qp1,data.b,data.dim);
         // view solution
         //PSE::printVecView(q);
         //PSE::printVecView(qp1);
-        PSE::printVecASCII(q  ,"printVecq.txt");
-        PSE::printVecASCII(qp1,"printVecqp1.txt");
+        PSE::printVecASCII(data.q  ,"printVecq.txt");
+        PSE::printVecASCII(data.qp1,"printVecqp1.txt");
         //PSE::printVecView(qexact);
         // free memory
-        ierr = MatDestroy(&A);CHKERRQ(ierr);
-        ierr = MatDestroy(&B);CHKERRQ(ierr);
-        ierr = VecDestroy(&b);CHKERRQ(ierr);
-        ierr = VecDestroy(&q);CHKERRQ(ierr);
-        ierr = VecDestroy(&qp1);CHKERRQ(ierr);
+        ierr = MatDestroy(&data.A);CHKERRQ(ierr);
+        ierr = MatDestroy(&data.B);CHKERRQ(ierr);
+        ierr = VecDestroy(&data.b);CHKERRQ(ierr);
+        ierr = VecDestroy(&data.q);CHKERRQ(ierr);
+        ierr = VecDestroy(&data.qp1);CHKERRQ(ierr);
     }
     if(0){ // compare against matmult and Ax_b using data (should be exactly equal to OSS equations from python scripts)
         // init
-        Mat A,B;
-        Vec b,q,Aq;
+        //Mat A,B;
+        //Vec b,q,Aq;
+        Vec Aq;
         PetscScalar Re=6000.,rho=1.,alpha,m=1.,omega=0.27;
+        data.Re=Re;
         PetscInt ny=101,nz=6;
         PetscScalar y[ny],z[nz];
         PetscInt dim=ny*nz*4;
-        PSE::Init_Vec(q,dim);
+        PSE::Init_Vec(data.q,dim);
         // read in q,y,z,alpha from binary files
         //PSE::Read_q(q,y,ny,z,nz,alpha);
-        PSE::Read_q(q,y,ny,z,nz,alpha,"../OrrSommerfeld_and_primitive/uvwP_101");
+        PSE::Read_q(data.q,data.y,data.ny,data.z,data.nz,data.alpha,"../OrrSommerfeld_and_primitive/uvwP_101");
         PetscPrintf(PETSC_COMM_WORLD,"\noutput:\n");
-        PSE::printScalar(&alpha);
+        PSE::printScalar(&data.alpha);
         // set A,b 
-        PSE::set_A_and_B(y,ny,z,nz,A,B,Re,rho,alpha,m,omega);
+        PSE::set_A_and_B(data);
         //PSE::set_Euler_Advance(hx,A,B);
-        PSE::Init_Vec(b,dim);
-        PSE::set_b(B,q,b); //B*q->b
+        PSE::Init_Vec(data.b,dim);
+        PSE::set_b(data.B,data.q,data.b); //B*q->b
         // set BCs
-        PSE::set_BCs(A,b,ny,nz);
-        PSE::set_Vec(b); // assemble b
+        PSE::set_BCs(data.A,data.b,data.ny,data.nz);
+        PSE::set_Vec(data.b); // assemble b
         // view A
         //PSE::printMatView(A);
         //PSE::printMatASCII(A,"printMatASCII_dense.txt",PETSC_VIEWER_ASCII_DENSE);
-        PSE::printMatASCII(A,"A.m",PETSC_VIEWER_ASCII_MATLAB);
+        PSE::printMatASCII(data.A,"A.m",PETSC_VIEWER_ASCII_MATLAB);
         // Check if Aq = 0 or not
-        PSE::Init_Vec(Aq,dim);
-        MatMult(A,q,Aq);
+        PSE::Init_Vec(Aq,data.dim);
+        MatMult(data.A,data.q,Aq);
         // view solution
         //PSE::printVecView(q);
         //PSE::printVecView(Aq);
         PSE::printVecASCII(Aq,"Aq.txt");
         // free memory
-        ierr = MatDestroy(&A);CHKERRQ(ierr);
-        ierr = MatDestroy(&B);CHKERRQ(ierr);
-        ierr = VecDestroy(&b);CHKERRQ(ierr);
-        ierr = VecDestroy(&q);CHKERRQ(ierr);
+        ierr = MatDestroy(&data.A);CHKERRQ(ierr);
+        ierr = MatDestroy(&data.B);CHKERRQ(ierr);
+        ierr = VecDestroy(&data.b);CHKERRQ(ierr);
+        ierr = VecDestroy(&data.q);CHKERRQ(ierr);
         ierr = VecDestroy(&Aq);CHKERRQ(ierr);
     }
     if(0){ // get subvector test and trapz
@@ -341,57 +346,54 @@ int main(int argc,char **args){
     }
     if(1){ // advance q many steps, and check growth, and iterate on alpha
         // init
-        Mat A,B;
-        Vec b,q,qp1;
+        //Mat A,B;
+        //Vec b,q,qp1;
         //PetscScalar Re=6000.,rho=1.,alpha,m=1.,omega=0.27;
-        PetscScalar Re=2000.,rho=1.,alpha,m=1.,omega=0.3;
-        PetscInt ny=101,nz=6;
-        PetscScalar y[ny],z[nz];
-        PetscScalar hx=2.5;
-        PetscInt dim=ny*nz*4;
-        PSE::Init_Vec(q,dim);
-        PSE::Init_Vec(qp1,dim);
+        //PetscScalar Re=2000.,rho=1.,alpha,m=1.,omega=0.3;
+        //PetscInt ny=101,nz=6;
+        //PetscScalar y[ny],z[nz];
+        //PetscScalar hx=2.5;
+        //PetscInt dim=ny*nz*4;
+        //PSE::Init_Vec(q,dim);
+        //PSE::Init_Vec(qp1,dim);
         // read in and set matrices
-        PSE::Read_q(q,y,ny,z,nz,alpha,"../OrrSommerfeld_and_primitive/uvwP_101_stable");// read in q,y,z,alpha from binary files
-        VecCopy(q,qp1); // qp1=q for initial guess
+        PSE::Read_q(data.q,data.y,data.ny,data.z,data.nz,data.alpha,"../OrrSommerfeld_and_primitive/uvwP_101_stable");// read in q,y,z,alpha from binary files
+        VecCopy(data.q,data.qp1); // qp1=q for initial guess
 
         //VecSetValue(q,ny+6,0.00001,ADD_VALUES);// add a little v disturbance
-        PSE::set_Vec(q); // assemble again
+        PSE::set_Vec(data.q); // assemble again
         //PSE::printVecView(q);
         char filename[100];
         sprintf(filename,"printVecq0.txt");
-        PSE::printVecASCII(q  ,filename);
-        PSE::printScalar(&alpha,1,"original alpha");
-        PetscScalar Ialpha = alpha*hx;
+        PSE::printVecASCII(data.q  ,filename);
+        PSE::printScalar(&data.alpha,1,"original alpha");
+        PetscScalar Ialpha = data.alpha*data.hx;
         for(int i=1; i<15; ++i){
-            PSE::set_A_and_B(y,ny,z,nz,A,B,Re,rho,alpha,m,omega);// set A,b 
-            PSE::set_BCs(A,B,ny,nz);        // set BCs in A and B
-            PSE::set_Euler_Advance(hx,A,B); // set up Euler advancing matrices
-            PSE::Init_Vec(b,dim);           // set b vector from b=B*q
-            PSE::set_b(B,q,b);              //B*q->b
-            PSE::set_Vec(b); // assemble b
+            PetscPrintf(PETSC_COMM_WORLD,"made it to here");
+            PSE::set_A_and_B(data);
+            PetscPrintf(PETSC_COMM_WORLD,"made it to here 2");
+            PSE::set_BCs(data.A,data.B,data.ny,data.nz);        // set BCs in A and B
+            PSE::set_Euler_Advance(data.hx,data.A,data.B); // set up Euler advancing matrices
+            //PSE::Init_Vec(b,dim);           // set b vector from b=B*q
+            PSE::set_b(data.B,data.q,data.b);              //B*q->b
+            PSE::set_Vec(data.b); // assemble b
             // solve Ax=b
-            PSE::Ax_b(A,qp1,b,dim);
+            PSE::Ax_b(data.A,data.qp1,data.b,data.dim);
             // view solution
             //PSE::printVecView(q);
             //PSE::printVecView(qp1);
             // closure?
-            PSE::update_Closure(q,qp1,ny,nz,hx,Ialpha,alpha);
+            PSE::update_Closure(data.q,data.qp1,data.ny,data.nz,data.hx,Ialpha,data.alpha);
             //PSE::printVecView(qp1);
-            VecCopy(qp1,q);
-            PSE::set_Vec(q); //assemble
+            VecCopy(data.qp1,data.q);
+            PSE::set_Vec(data.q); //assemble
             sprintf(filename,"printVecq%d.txt",i);
-            PSE::printVecASCII(q  ,filename);
+            PSE::printVecASCII(data.q  ,filename);
             PetscPrintf(PETSC_COMM_WORLD,"Marched %d\n",i);
         }
         //PSE::printVecASCII(q  ,"printVecq.txt");
         //PSE::printVecASCII(qp1,"printVecqp1.txt");
-        // free memory
-        ierr = MatDestroy(&A);CHKERRQ(ierr);
-        ierr = MatDestroy(&B);CHKERRQ(ierr);
-        ierr = VecDestroy(&b);CHKERRQ(ierr);
-        ierr = VecDestroy(&q);CHKERRQ(ierr);
-        ierr = VecDestroy(&qp1);CHKERRQ(ierr);
+        
     }
     if(0){ // read in variables and update_Closure step a lot
         // note! Must force many iterations in update_Closure.cpp file for this to print and plot
@@ -433,6 +435,8 @@ int main(int argc,char **args){
         ierr = VecDestroy(&qp1);CHKERRQ(ierr);
     }
 
+    // free memory
+    data.destroy();
 
     ierr = PetscFinalize();
     return ierr;

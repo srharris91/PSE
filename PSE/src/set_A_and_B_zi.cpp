@@ -46,12 +46,16 @@ namespace PSE
                  col_P=(4*zi+3)*ny;
         // set u-mom equation for A
         row_eq=(4*zi+0)*ny;
+        PetscPrintf(PETSC_COMM_WORLD,"made it to here A_and_B_zi before terms");
         // u-terms
         set_Mat(-i*m*omega,I,ny,A,dim,row_eq,col_u);//-imw
         set_Mat(i*alpha,U,ny,A,dim,row_eq,col_u);//ialpha*U
         set_Mat((1./Re) * (pow(alpha,2)),I,ny,A,dim,row_eq,col_u);//Re^-1 * alpha^2
+        PetscPrintf(PETSC_COMM_WORLD,"made it to here A_and_B_zi before most terms before Dyy");
         set_Mat(-1./Re,Dyy,ny,A,dim,row_eq,col_u);// -Re^-1 Dyy
+        PetscPrintf(PETSC_COMM_WORLD,"made it to here A_and_B_zi before most terms after Dyy");
         set_Mat(-1./Re,Dzz,nz,ny,zi,A,dim,row_eq,col_u-4*zi*ny); // -Re^-1 Dzz
+        PetscPrintf(PETSC_COMM_WORLD,"made it to here A_and_B_zi before most terms after Dzz");
         // v-terms
         set_Mat(1.,Uy,ny,A,dim,row_eq,col_v);//Uy
         //w-terms
