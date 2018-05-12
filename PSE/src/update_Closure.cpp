@@ -26,7 +26,9 @@ namespace PSE
         // set q_physical
         Vec q_physical; // physical type q=\hat{q} exp(...)
         Init_Vec(q_physical,dim);
+        PetscPrintf(PETSC_COMM_WORLD,"before q_physical copy\n");
         VecCopy(qp1,q_physical);
+        PetscPrintf(PETSC_COMM_WORLD,"after q_physical copy\n");
         VecScale(q_physical,PetscExpScalar( PETSC_i*(Ialpha_orig + (dx*(alpha_i+alpha)/2.))));
         set_Vec(q_physical); // assemble final
         printVecASCII(q_physical,"q_physical_before.txt");
@@ -47,7 +49,7 @@ namespace PSE
                  PetscAbsReal(PetscImaginaryPart(closure_value))   >= tol
                 )
                 ){
-        //for (int i=0; i<100; ++i){
+        //for (int i=0; i<20; ++i){
             // update alpha
             VecCopy(qp1,q2);
             VecAbs(q2);

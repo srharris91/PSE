@@ -43,6 +43,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <string>
+#include <fstream>
 
 #include "base_flow.hpp"
 #include "Ax_b.hpp"
@@ -62,5 +63,6 @@
 #include "trapz.hpp"
 #include "calc_Closure.hpp"
 #include "update_Closure.hpp"
+#include "class.hpp"
 
 #endif

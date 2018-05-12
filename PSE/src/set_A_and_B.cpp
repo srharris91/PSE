@@ -11,6 +11,7 @@
 #include "set_Mat.hpp"
 #include "set_Vec.hpp"
 #include "base_flow.hpp"
+#include "class.hpp"
 
 namespace PSE
 {
@@ -32,24 +33,26 @@ namespace PSE
             data.flag_set_D=PETSC_TRUE;
         }
         // zero A and B matrix
-        
-        for (PetscInt i=0; i<data.dim; ++i){
-            MatZeroRows(data.A,
-        }
+        MatDestroy(&data.A);
+        MatDestroy(&data.B);
+        Init_Mat(data.A,data.dim);
+        Init_Mat(data.B,data.dim);
+        /*
+        PetscInt *temp_row = new PetscInt[data.dim];
+        for (PetscInt i=0; i<data.dim; ++i) temp_row[i] = i; // set row numbers
+        MatZeroRows(data.A,data.dim,temp_row,0,0,0);
+        delete[] temp_row;
+        */
 
         //Vec b;
         PetscErrorCode ierr;
 
         for (PetscInt i=0; i<data.nz; i++){
-            PetscPrintf(PETSC_COMM_WORLD,"made it to here A_and_B_before_assemble set zi=%d",i);
             set_A_and_B_zi(data.y,data.ny,data.z,data.nz,data.A,data.B,data.Re,data.rho,data.alpha,data.m,data.omega,data.Dy,data.Dyy,data.Dz,data.Dzz,data.I,data.U,data.Uy,i,data.order,data.reduce_wall_order);
         }
         // assemble A,B
-        PetscPrintf(PETSC_COMM_WORLD,"made it to here A_and_B_before_assemble");
         set_Mat(data.A);
-        PetscPrintf(PETSC_COMM_WORLD,"made it to here A_and_B_in_assemble");
         set_Mat(data.B);
-        PetscPrintf(PETSC_COMM_WORLD,"made it to here A_and_B_after_assemble");
 
 
         //ierr = MatDestroy(&B);CHKERRQ(ierr);

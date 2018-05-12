@@ -19,7 +19,7 @@ namespace PSE{
             const PetscScalar &dx,              ///< [in] x marching step distance
             PetscScalar &Ialpha,                ///< [in,out] integral value from previous step \f$ \int_0^{x_i} \alpha(\xi) d\xi \f$
             PetscScalar &alpha,                 ///< [in,out] initial alpha value of eigenfunction (constant from last step initially)
-            const PetscReal &tol=1e-7,         ///< [in] tolerance on norm equation
+            const PetscReal &tol=1e-15,         ///< [in] tolerance on norm equation
             const PetscScalar &Deltay=2,        ///< [in] height of channel in y (default to 2)
             const PetscScalar &Deltaz=1         ///< [in] width of channel in z(default to 1)
             );

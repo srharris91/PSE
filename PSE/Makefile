@@ -4,7 +4,7 @@ CFLAGS	         =
 FFLAGS	         =
 CPPFLAGS         = -std=c++14 -I${INCLUDE_DIR}
 FPPFLAGS         =
-NP               = 1
+NP               = 2
 SRCFILES         = $(wildcard ./src/*cpp)
 OBJFILES         = $(patsubst %.cpp,%.o,${SRCFILES})
 EXECUTABLE       = PSE

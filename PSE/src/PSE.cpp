@@ -357,7 +357,10 @@ int main(int argc,char **args){
         //PSE::Init_Vec(q,dim);
         //PSE::Init_Vec(qp1,dim);
         // read in and set matrices
+        std::ofstream out_alpha;
+        out_alpha.open("alpha.txt", std::ofstream::out); // output output file for alpha
         PSE::Read_q(data.q,data.y,data.ny,data.z,data.nz,data.alpha,"../OrrSommerfeld_and_primitive/uvwP_101_stable");// read in q,y,z,alpha from binary files
+        out_alpha << data.alpha<<'\n';
         VecCopy(data.q,data.qp1); // qp1=q for initial guess
 
         //VecSetValue(q,ny+6,0.00001,ADD_VALUES);// add a little v disturbance
@@ -369,9 +372,7 @@ int main(int argc,char **args){
         PSE::printScalar(&data.alpha,1,"original alpha");
         PetscScalar Ialpha = data.alpha*data.hx;
         for(int i=1; i<15; ++i){
-            PetscPrintf(PETSC_COMM_WORLD,"made it to here");
             PSE::set_A_and_B(data);
-            PetscPrintf(PETSC_COMM_WORLD,"made it to here 2");
             PSE::set_BCs(data.A,data.B,data.ny,data.nz);        // set BCs in A and B
             PSE::set_Euler_Advance(data.hx,data.A,data.B); // set up Euler advancing matrices
             //PSE::Init_Vec(b,dim);           // set b vector from b=B*q
@@ -383,14 +384,22 @@ int main(int argc,char **args){
             //PSE::printVecView(q);
             //PSE::printVecView(qp1);
             // closure?
+            //VecScale(data.qp1,1.+1e-1); // scale q by 10% to see if updates back 
+            VecSetValue(data.qp1,6,-0.01,ADD_VALUES);// add a little v disturbance
+            PSE::set_Vec(data.qp1);
+            PetscPrintf(PETSC_COMM_WORLD,"after set growth\n");
             PSE::update_Closure(data.q,data.qp1,data.ny,data.nz,data.hx,Ialpha,data.alpha);
+            PetscPrintf(PETSC_COMM_WORLD,"after update\n");
             //PSE::printVecView(qp1);
             VecCopy(data.qp1,data.q);
             PSE::set_Vec(data.q); //assemble
+            // output
+            out_alpha << PetscRealPart(data.alpha)<<"+"<<PetscImaginaryPart(data.alpha)<<"j,"<<'\n';
             sprintf(filename,"printVecq%d.txt",i);
             PSE::printVecASCII(data.q  ,filename);
             PetscPrintf(PETSC_COMM_WORLD,"Marched %d\n",i);
         }
+        out_alpha.close();
         //PSE::printVecASCII(q  ,"printVecq.txt");
         //PSE::printVecASCII(qp1,"printVecqp1.txt");
         
